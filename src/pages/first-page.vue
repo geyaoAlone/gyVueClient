@@ -35,7 +35,7 @@
               <a href="#signin" class="layui-hide-sm layui-show-xs-block fly-right" id="LAY_goSignin" style="color: #FF5722;">去签到</a>
             </div>
             <ul class="fly-list">
-              <li v-for="(item ,i) in catalogueList" :key="i" v-if="item.stick=='1'">
+              <li v-for="(item ,i) in stickList" :key="i" v-if="item.stick=='1'">
                 <a href="javascript:;" class="fly-avatar" >
                   <img :src="item.headPortraitUrl" alt="葛耀">
                 </a>
@@ -229,6 +229,7 @@
           userSession:this.$store.state.session,
           queryUrl:"/api/lobby/queryCatalogueList?",
           catalogueList:[],
+          stickList:[],
           queryParams:{isEnd:'',orderType:'id',isbest:''}
 
         }
@@ -246,8 +247,12 @@
             dom.parent().find('.layui-this').removeClass('layui-this');
             dom.addClass('layui-this');
           }
-          var url = this.queryUrl
+          var url = this.queryUrl+'stick=0'
           switch (src){
+            case 0://综合
+              this.queryParams.isEnd =''
+              this.queryParams.isbest = ''
+              break;
             case 1://未结
               this.queryParams.isEnd ='0'
               this.queryParams.isbest = ''
@@ -269,7 +274,7 @@
 
           }
           console.info(this.queryParams)
-          url += 'orderType='+this.queryParams.orderType
+          url += '&orderType='+this.queryParams.orderType
 
           if(this.queryParams.isEnd){
             url += '&status='+this.queryParams.isEnd
@@ -277,7 +282,7 @@
           if(this.queryParams.isbest){
             url += '&best='+this.queryParams.isbest
           }
-          url += '&username='+this.userSession.username
+          //url += '&username='+this.userSession.username
           this.$http.get(url).then(result => {
             console.info(result)
             this.catalogueList = result.catalogueList
@@ -289,15 +294,12 @@
 
       },
       created() {
-        var url = this.queryUrl
-        if(this.userSession != null){
-          url += 'username='+this.userSession.username+'&orderType=id'
-        }else{
-          url +='&orderType=id'
-        }
+        console.info(this.userSession)
+        var url = this.queryUrl+'&orderType=id'
         this.$http.get(url).then(result => {
           console.info(result)
           this.catalogueList = result.catalogueList
+          this.stickList = result.stickList
         });
 
       }

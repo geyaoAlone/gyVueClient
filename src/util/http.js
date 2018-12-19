@@ -2,9 +2,8 @@
 
 import axios from 'axios'
 //import { Indicator } from 'mint-ui';
-const BASE_URL = 'http://localhost:8080';
-// 'http://39.108.221.60:9527';
 
+const BASE_URL = 'http://39.108.221.60:9500';//'http://localhost:8080'
 
 axios.interceptors.request.use(config => {
     // loading opend
@@ -25,7 +24,7 @@ function checkStatus (response) {
     // loading close
     //Indicator.close();
     try {
-        if(/^(200|304|400)$/.test(response.status)){
+        if(/^(200|304|400|401)$/.test(response.status)){
             return response.data;
         }
 
@@ -40,21 +39,28 @@ function checkStatus (response) {
 }
 
 export default {
-    post (url, data) {
+    post (url, data,token) {
         return axios({
             method: 'post',
             baseURL: BASE_URL,
             url,
             data,
             timeout: 10000,
+            headers:{
+              "Authorization":'Bearer '+token
+            }
+
         }).then( response => checkStatus(response) )
     },
-    get(url){
+    get(url,token){
       return axios({
         method: 'get',
         baseURL: BASE_URL,
         url,
         timeout: 10000,
+        headers:{
+          "Authorization":'Bearer '+token
+        }
       }).then( response => checkStatus(response) )
     }
 }

@@ -74,8 +74,9 @@ export default {
       layer.confirm('您确定想退出登陆了？', {
         btn: ['确定','算了']
       }, function(){
-        _this.$http.get('/api/user/logout?username='+_this.userSession.username).then(result => {
-          if(result == '1'){
+        //_this.$store.commit('clearSession',this.userSession)
+        _this.$http.get('/api/user/logout?username='+_this.userSession.username,_this.userSession.token).then(result => {
+          if(result.code == '0'){
             layer.msg('退出成功',{time:1000},function(){
               _this.$store.commit('clearSession',this.userSession)
               window.location.reload()

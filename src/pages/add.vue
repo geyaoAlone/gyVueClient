@@ -11,12 +11,12 @@
             </ul>
             <div class="layui-form layui-tab-content" id="LAY_ucm" style="padding: 20px 0;">
               <div class="layui-tab-item layui-show">
-                <form action="http://localhost:9527/add.do" method="post" class="layui-form">
+                <form class="layui-form">
                   <div class="layui-row layui-col-space15 layui-form-item">
                     <div class="layui-col-md3">
-                      <label class="layui-form-label">所在专栏</label>
+                      <label class="layui-form-label">发表类型</label>
                       <div class="layui-input-block">
-                        <select lay-verify="required" name="type" lay-filter="column">
+                        <select lay-filter="type" id="type">
                           <option></option>
                           <option value="question">问题</option>
                           <option value="gambit">话题</option>
@@ -28,14 +28,40 @@
                     <div class="layui-col-md9">
                       <label for="L_title" class="layui-form-label">标题</label>
                       <div class="layui-input-block">
-                        <input type="text" id="L_title" name="title" required lay-verify="required" autocomplete="off" class="layui-input">
+                        <input type="text" v-model="formData.title" id="L_title" name="title" autocomplete="off" class="layui-input">
                         <!-- <input type="hidden" name="id" value="{{d.edit.id}}"> -->
+                      </div>
+                    </div>
+                  </div>
+                  <div class="layui-row layui-col-space15 layui-form-item">
+                    <div class="layui-col-md3">
+                      <label class="layui-form-label">是否公开</label>
+                      <div class="layui-input-block">
+                        <input type="checkbox" name="switch" lay-skin="switch" lay-filter="publicity" lay-text="是|否" checked>
+                      </div>
+                    </div>
+                    <div class="layui-col-md3">
+                      <label class="layui-form-label">是否精帖</label>
+                      <div class="layui-input-block">
+                        <input type="checkbox" name="switch" lay-skin="switch" lay-filter="best" lay-text="是|否" >
+                      </div>
+                    </div>
+                    <div class="layui-col-md3" v-if="userSession.authorities[0] =='ADMIN'">
+                      <label class="layui-form-label">是否置顶</label>
+                      <div class="layui-input-block">
+                        <input type="checkbox" name="switch" lay-skin="switch" lay-filter="stick" lay-text="是|否" >
+                      </div>
+                    </div>
+                    <div class="layui-col-md3" >
+                      <label class="layui-form-label" for="endDate">截止日期</label>
+                      <div class="layui-input-block">
+                        <input type="text" name="endDate" id="endDate" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
                       </div>
                     </div>
                   </div>
                   <div class="layui-form-item layui-form-text">
                     <div class="layui-input-block">
-                      <textarea id="L_content" name="content" required lay-verify="required" placeholder="详细描述" class="layui-textarea fly-editor" style="height: 260px;"></textarea>
+                      <textarea id="L_content" v-model="formData.content" name="content"placeholder="详细描述" class="layui-textarea fly-editor" style="height: 260px;"></textarea>
                     </div>
                   </div>
 
@@ -55,25 +81,18 @@
                     </div>
                   </div>-->
 
-                    <div class="layui-form-item">
-                      <label class="layui-form-label">要不要公开</label>
-                      <div class="layui-input-block">
-                        <input type="radio" name="ispublic" value="0" title="公开" checked>
-                        <input type="radio" name="ispublic" value="1" title="这是我的秘密" >
-                      </div>
-                    </div>
-
                   <div class="layui-form-item">
                     <label for="L_vercode" class="layui-form-label">人类验证</label>
                     <div class="layui-input-inline">
-                      <input type="text" id="L_vercode" name="vercode" required lay-verify="required" placeholder="请回答后面的问题" autocomplete="off" class="layui-input">
+                      <input type="text" id="L_vercode" v-model="formData.vercode" name="vercode" placeholder="请回答后面的问题" autocomplete="off" class="layui-input">
                     </div>
                     <div class="layui-form-mid">
-                      <span style="color: #c00;">1+1=?</span>
+                      <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
                     </div>
                   </div>
+                  {{formData.content}}
                   <div class="layui-form-item">
-                    <button class="layui-btn" lay-filter="add" lay-submit>立即发布</button>
+                    <a class="layui-btn" @click="add()">立即发布</a>
                   </div>
                 </form>
               </div>
@@ -91,20 +110,83 @@
       name: "add",
       data: function() {
         return{
-          userSession:this.$store.state.session
+          userSession:this.$store.state.session,
+          formData:{username:'',type:'',title:'',content:'',vercode:'',publicity:true,best:false,endTime:'',stick:false}
         }
       },
       methods:{
+        refreshImg:function(){
+          var username = this.userSession.username;
+          if(username){
+            this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
+              if(result.result =='0'){
+                layer.msg(result.failReason,{time:1500})
+              }else{
+                document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
+              }
+            })
+          }
+        },
+        add:function(){
+          if(!this.formData.type){
+            layer.msg('请选择发表类型',{time:1000});
+          }else if(!this.formData.title){
+            layer.msg('请填写标题',{time:1000},function () {
+              $('#L_title').focus();
+            });
+          }else if(!this.formData.content){
+            layer.msg('请填写内容',{time:1000},function () {
+              $('#L_content').focus();
+            });
+          }else if(!this.formData.vercode){
+            layer.msg('请填写验证',{time:1000},function () {
+              $('#L_vercode').focus();
+            });
+          }else{
+            console.info(this.formData)
+            this.$http.post('api/user/saveNewArticle',this.formData,this.userSession.token).then(result => {
+              if(result.code =='-1'){
+                layer.msg(result.message,{time:1000});
+              }else{
+                layer.msg('添加成功')
+              }
+
+            })
+
+          }
+
+        }
       },
       mounted(){
+          var _this = this;
+          fly.vue(this);//把参数传入控件
           fly.layEditor({
             elem: '.fly-editor'
           });
 
-          layui.use('form',function(){
-            var form = layui.form;
-            form.on('submit(add)', function(data){
-              data.form.submit();
+          layui.use(['form','laydate'],function(){
+            var form = layui.form,laydate = layui.laydate;
+            var nowDate = new Date();
+            var nowStr = nowDate.getFullYear().toString()+(nowDate.getMonth()+1).toString()+nowDate.getDate().toString();
+            console.info(nowStr)
+            laydate.render({
+              elem: '#endDate',
+              min: nowStr,
+              done: function(value, date){
+                _this.formData.endTime = value
+              }
+            });
+            form.on('select(type)', function(data){
+              _this.formData.type = data.value;
+            });
+            form.on('switch(publicity)', function(data){
+              _this.formData.publicity = this.checked?true:false;
+            });
+            form.on('switch(best)', function(data){
+              _this.formData.best = this.checked?true:false;
+            });
+            form.on('switch(stick)', function(data){
+              _this.formData.stick = this.checked?true:false;
             });
             form.render();
           })
@@ -113,11 +195,18 @@
 
       },
       created() {
-
         let info = this.$store.state.session
         if(info == null){
             this.$router.push({path: '/'})
         }
+        this.formData.username = info.username;
+        this.$http.get('/api/gateway/identifyCode?username='+info.username).then(result => {
+          if(result.result =='0'){
+            layer.msg(result.failReason+' 刷新重试',{time:1500})
+          }else{
+            document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
+          }
+        })
       }
     }
 </script>

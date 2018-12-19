@@ -29,8 +29,8 @@
                     <div class="layui-input-inline">
                       <input type="text" v-model="loginInfo.identifyCode" id="L_vercode" name="vercode" placeholder="请写出后面的答案" class="layui-input">
                     </div>
-                    <div class="layui-form-mid">
-                      <img id="identifyCodeImg"/>
+                    <div class="">
+                      <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
                     </div>
                   </div>
                   <div class="layui-form-item">
@@ -71,19 +71,34 @@
               })
               return
             }
-            this.$http.get('/api/user/identifyCode?username='+username).then(result => {
+            this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
               if(result.result =='0'){
                 layer.msg(result.failReason,{time:1500},function(){
                   $('#username').focus();
                 })
               }else{
-                document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.img);
+                document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
               }
 
             })
 
           },
+          refreshImg:function(){
+            var username = this.loginInfo.username;
+            if(username){
+              this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
+                if(result.result =='0'){
+                  layer.msg(result.failReason,{time:1500},function(){
+                    $('#username').focus();
+                  })
+                }else{
+                  document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
+                }
+              })
+            }
+          },
           login:function(){
+            let _this = this
             if(!this.loginInfo.username){
               layer.msg('用户名都不填就想登陆！逗我玩呢',{time:1500},function(){
                 $('#username').focus();
@@ -102,14 +117,23 @@
               })
               return
             }
-            this.$http.post('/api/user/login',this.loginInfo).then(result => {
+            this.$http.post('/api/gateway/login',this.loginInfo).then(result => {
               console.info(result)
               if(result.code ===0){
-                layer.msg('登陆成功！',{time:1000})
-                let session = {username:this.loginInfo.username,token:result.data};
-                this.$store.commit('setSession',session);
-                window.location.reload();
-                this.$router.push({path: '/'})
+                var token = result.data;
+                layer.msg('登陆成功！',{time:1000},function(){
+                  _this.$http.get('/api/user/getUserInfo?username='+_this.loginInfo.username,token).then(result => {
+                    if(!result){
+                      layer.msg('拉取客户信息失败！请重新登录',{time:1500});
+                    }else{
+                      let session = result;
+                      session.token = token;
+                      _this.$store.commit('setSession',session);
+                      window.location.reload();
+                      _this.$router.push({path: '/'})
+                    }
+                  })
+                })
               }else{
                 layer.msg(result.message,{time:2000});
               }
