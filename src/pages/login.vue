@@ -123,8 +123,17 @@
                 var token = result.data;
                 layer.msg('登陆成功！',{time:1000},function(){
                   _this.$http.get('/api/user/getUserInfo?username='+_this.loginInfo.username,token).then(result => {
-                    if(!result){
-                      layer.msg('拉取客户信息失败！请重新登录',{time:1500});
+                    if(result.code =='-1'){
+                      layer.msg('拉取客户信息失败！请重新登录'
+                        ,{time:1500}
+                        ,function () {
+                          _this.$http.get('/api/gateway/identifyCode?username='+_this.loginInfo.username).then(result => {
+                            if(result.result !='0'){
+                              document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
+                            }
+                          })
+                        }
+                      );
                     }else{
                       let session = result;
                       session.token = token;
@@ -135,7 +144,15 @@
                   })
                 })
               }else{
-                layer.msg(result.message,{time:2000});
+                layer.msg(result.message,{time:2000},function () {
+                  this.$http.get('/api/gateway/identifyCode?username='+_this.loginInfo.username).then(result => {
+                    if(result.result =='0'){
+                      layer.msg(result.failReason,{time:1500})
+                    }else{
+                      document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
+                    }
+                  })
+                });
               }
             })
           }

@@ -75,9 +75,7 @@
                 <span class="layui-btn layui-btn-xs jie-admin" type="edit"><a href="add.html">编辑此贴</a></span>
               </div>
             </div>
-            <div class="detail-body photos">
-              {{detail.content}}
-            </div>
+            <div class="detail-body photos" v-html="detail.content"></div>
           </div>
 
           <div class="fly-panel detail-box" id="flyReply">
@@ -263,6 +261,7 @@
 </template>
 
 <script>
+    import {fly} from '../util/editUtil.js';
     export default {
         name: "detail",
         data: function() {
@@ -281,6 +280,7 @@
               })
             }
             this.detail = result
+            this.detail.content = fly.content(this.detail.content)
           });
 
         }
