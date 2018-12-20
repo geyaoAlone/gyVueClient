@@ -278,9 +278,10 @@
               layer.msg('查看明细异常！',{time:1500},function(){
                 _this.$router.push({path: 'firstPage'})
               })
+            }else{
+              result.content = fly.content(result.content)
+              this.detail = result
             }
-            this.detail = result
-            this.detail.content = fly.content(this.detail.content)
           });
 
         }

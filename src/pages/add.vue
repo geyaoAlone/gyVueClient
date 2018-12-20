@@ -90,7 +90,6 @@
                       <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
                     </div>
                   </div>
-                  {{formData.content}}
                   <div class="layui-form-item">
                     <a class="layui-btn" @click="add()">立即发布</a>
                   </div>
