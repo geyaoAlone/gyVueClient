@@ -125,45 +125,20 @@
           </div>
         </div>
         <div class="layui-col-md4">
-
-          <div class="fly-panel">
-            <h3 class="fly-panel-title">温馨通道</h3>
-            <ul class="fly-panel-main fly-list-static">
-              <li>
-                <a href="http://fly.layui.com/jie/4281/" target="_blank">layui 的 GitHub 及 Gitee (码云) 仓库，欢迎Star</a>
-              </li>
-              <li>
-                <a href="http://fly.layui.com/jie/5366/" target="_blank">
-                  layui 常见问题的处理和实用干货集锦
-                </a>
-              </li>
-              <li>
-                <a href="http://fly.layui.com/jie/4281/" target="_blank">layui 的 GitHub 及 Gitee (码云) 仓库，欢迎Star</a>
-              </li>
-              <li>
-                <a href="http://fly.layui.com/jie/5366/" target="_blank">
-                  layui 常见问题的处理和实用干货集锦
-                </a>
-              </li>
-              <li>
-                <a href="http://fly.layui.com/jie/4281/" target="_blank">layui 的 GitHub 及 Gitee (码云) 仓库，欢迎Star</a>
-              </li>
-            </ul>
-          </div>
-
-
           <div class="fly-panel fly-signin">
             <div class="fly-panel-title">
-              签到
-              <i class="fly-mid"></i>
+              小站说明
+             <!-- <i class="fly-mid"></i>
               <a href="javascript:;" class="fly-link" id="LAY_signinHelp">说明</a>
               <i class="fly-mid"></i>
               <a href="javascript:;" class="fly-link" id="LAY_signinTop">活跃榜<span class="layui-badge-dot"></span></a>
-              <span class="fly-signin-days">已连续签到<cite>16</cite>天</span>
+              <span class="fly-signin-days">已连续签到<cite>16</cite>天</span>-->
             </div>
-            <div class="fly-panel-main fly-signin-main">
-              <button class="layui-btn layui-btn-danger" id="LAY_signin">今日签到</button>
-              <span>可获得<cite>5</cite>飞吻</span>
+            <div class="fly-panel-main">
+              欢迎光临小站，希望您能在小站里找到你想要的东西。<br/>
+              该小站暂时不支持注册。如果你也想成为小站会员，请去留言去留下您的邮箱，小站将给你免费发送会员信息
+              <!--<button class="layui-btn layui-btn-danger" id="LAY_signin">今日签到</button>
+              <span>可获得<cite>5</cite>飞吻</span>-->
 
               <!-- 已签到状态 -->
               <!--
@@ -172,21 +147,38 @@
               -->
             </div>
           </div>
+          <div class="fly-panel">
+            <h3 class="fly-panel-title">友情连接</h3>
+            <ul class="fly-panel-main fly-list-static">
+              <li>
+                <a href="http://www.rongxintong.com" target="_blank">融信通金融服务平台</a>
+              </li>
+              <li>
+                <a href="http://jiaofei.rongxintong.com" target="_blank">融信通云缴费平台（龙E达）</a>
+              </li>
+              <li>
+                <a href="https://app.rongxintong.com:1448" target="_blank">融信通收银台</a>
+              </li>
+              <li>
+                <a href="https://app.rongxintong.com:1449" target="_blank">融信通云租赁平台</a>
+              </li>
+            </ul>
+          </div>
 
           <div class="fly-panel fly-rank fly-rank-reply" id="LAY_replyRank">
-            <h3 class="fly-panel-title">回贴周榜</h3>
+            <h3 class="fly-panel-title">发帖榜</h3>
             <dl>
               <!--<i class="layui-icon fly-loading">&#xe63d;</i>-->
               <dd>
                 <a href="user/home.html">
-                  <img src="https://tva1.sinaimg.cn/crop.0.0.118.118.180/5db11ff4gw1e77d3nqrv8j203b03cweg.jpg"><cite>贤心</cite><i>106次回答</i>
+                  <img src="http://120.79.240.9:8080/180.jpg"><cite>大官人</cite><i>106次回答</i>
                 </a>
               </dd>
             </dl>
           </div>
 
           <dl class="fly-panel fly-list-one">
-            <dt class="fly-panel-title">本周热议</dt>
+            <dt class="fly-panel-title">热门帖</dt>
             <!--<dd>
               <a href="jie/detail.html">基于 layui 的极简社区页面模版</a>
               <span><i class="iconfont icon-pinglun1"></i> 16</span>
@@ -196,19 +188,21 @@
             <div class="fly-none">没有相关数据</div>
           </dl>
 
-          <div class="fly-panel">
+          <!--<div class="fly-panel">
             <div class="fly-panel-title">
               这里可作为广告区域
             </div>
             <div class="fly-panel-main">
               <a href="http://layim.layui.com/?from=fly" target="_blank" class="fly-zanzhu" time-limit="2017.09.25-2099.01.01" style="background-color: #5FB878;">LayIM 3.0 - layui 旗舰之作</a>
             </div>
-          </div>
+          </div>-->
 
           <div class="fly-panel fly-link">
-            <h3 class="fly-panel-title">友情链接</h3>
+            <h3 class="fly-panel-title">小站技术点</h3>
             <dl class="fly-panel-main">
-              <dd><a href="http://www.geyaoln.xin/" target="_blank">layui</a></dd>
+              <dd><a href="https://cn.vuejs.org/" target="_blank">Vue</a></dd>
+              <dd><a href="https://www.layui.com/" target="_blank">layui</a></dd>
+              <dd><a href="https://spring.io/projects/spring-boot" target="_blank">Springboot</a></dd>
             </dl>
           </div>
 

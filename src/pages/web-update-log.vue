@@ -7,9 +7,9 @@
     <li class="layui-timeline-item" v-for="(item ,i) in data" :key="i">
       <i class="layui-icon layui-timeline-axis"></i>
       <div class="layui-timeline-content layui-text">
-        <h3 class="layui-timeline-title">{{item.version}}</h3>
+        <h3 class="layui-timeline-title">{{item.version}}<span>（{{item.updateDate}}）</span></h3>
         <p v-html="item.updateContent"></p>
-        <span>{{item.updateDate}}</span>
+        <span></span>
       </div>
     </li>
   </ul>
@@ -27,6 +27,7 @@
         created(){
           this.$http.get('/api/gateway/queryUpdateBlogs').then(result => {
             this.data= result.data;
+
           })
         }
     }

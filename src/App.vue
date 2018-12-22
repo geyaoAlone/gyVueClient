@@ -13,6 +13,9 @@
           <li class="layui-nav-item">
             <a href="#/updateLog"><i class="iconfont icon-ui"></i>小站更新</a>
           </li>
+          <li class="layui-nav-item">
+            <a href="#/visitors-wall"><i class="iconfont icon-ui"></i>小站留言</a>
+          </li>
         </ul>
 
         <ul class="layui-nav fly-nav-user">
@@ -31,9 +34,9 @@
               <img src="http://120.79.240.9:8080/180.jpg">
             </a>
             <dl class="layui-nav-child">
-              <dd><a href="user/set.html"><i class="layui-icon">&#xe620;</i>基本设置</a></dd>
-              <dd><a href="user/message.html"><i class="iconfont icon-tongzhi" style="top: 4px;"></i>我的消息</a></dd>
-              <dd><a href="user/home.html"><i class="layui-icon" style="margin-left: 2px; font-size: 22px;">&#xe68e;</i>我的主页</a></dd>
+              <dd><a href="javascript:;" @click="myHomepage()"><i class="layui-icon" style="margin-left: 2px; font-size: 22px;">&#xe68e;</i>我的主页</a></dd>
+              <dd><a href="javascript:;" @click="myInfo()"><i class="layui-icon">&#xe620;</i>我的信息</a></dd>
+              <dd><a href="javascript:;" @click="myMessage()"><i class="iconfont icon-tongzhi" style="top: 4px;"></i>我的消息</a></dd>
               <hr style="margin: 5px 0;">
               <dd><a href="javascript:;" style="text-align: center;" @click="logout()">退出</a></dd>
             </dl>
@@ -92,8 +95,12 @@ export default {
         layer.close('confirm')
       });
 
-    },add:function(){
-      this.$router.push({path: 'add'})
+    },myHomepage:function(){
+      this.$router.push({path: 'myHomepage'})
+    },myInfo:function(){
+      this.$router.push({path: 'myInfo'})
+    },myMessage:function(){
+      this.$router.push({path: 'myMessage'})
     }
   },
   mounted() {
