@@ -1,5 +1,5 @@
 <template>
-<div class="blog_body">
+<div class="blog_body update_box">
   <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
     <legend>网站更新版本线</legend>
   </fieldset>
@@ -36,5 +36,10 @@
 <style scoped>
   .blog_body{
     background: #fff;
+  }
+  .update_box{
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
   }
 </style>

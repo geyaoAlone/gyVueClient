@@ -31,7 +31,7 @@
         <div class="layui-col-md8">
           <div class="fly-panel">
             <div class="fly-panel-title fly-filter">
-              <a>置顶</a>
+              <h3>置顶</h3>
               <a href="#signin" class="layui-hide-sm layui-show-xs-block fly-right" id="LAY_goSignin" style="color: #FF5722;">去签到</a>
             </div>
             <ul class="fly-list">
@@ -134,9 +134,9 @@
               <a href="javascript:;" class="fly-link" id="LAY_signinTop">活跃榜<span class="layui-badge-dot"></span></a>
               <span class="fly-signin-days">已连续签到<cite>16</cite>天</span>-->
             </div>
-            <div class="fly-panel-main">
-              欢迎光临小站，希望您能在小站里找到你想要的东西。<br/>
-              该小站暂时不支持注册。如果你也想成为小站会员，请去留言去留下您的邮箱，小站将给你免费发送会员信息
+            <div class="fly-panel-main first_explain">
+              <p>欢迎光临小站，希望您能在小站里找到你想要的东西。该小站暂时不支持注册。如果你也想成为小站会员，请去留言去留下您的邮箱，小站将给你免费发送会员信息</p>
+
               <!--<button class="layui-btn layui-btn-danger" id="LAY_signin">今日签到</button>
               <span>可获得<cite>5</cite>飞吻</span>-->
 
@@ -302,4 +302,12 @@
 
 <style scoped>
 
+  .first_explain p{
+    font-size: 14px;
+    line-height: 26px;
+    color: #666;
+  }
+  .fly-panel-title{
+    color: #000000;
+  }
 </style>

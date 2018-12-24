@@ -33,49 +33,83 @@
 
         <div class="layui-col-md8 content detail">
           <div class="fly-panel detail-box">
-            <h1>{{detail.title}}</h1>
+            <h1 class="detail_lableTip"><span class="layui-badge layui-bg-green fly-detail-column">{{detail.typeName}}</span>{{detail.title}}<span class="layui-badge layui-bg-red" v-if="detail.best">精</span></h1>
             <div class="fly-detail-info">
               <!-- <span class="layui-badge">审核中</span> -->
-              <span class="layui-badge layui-bg-green fly-detail-column">{{detail.typeName}}</span>
 
-              <span class="layui-badge" style="background-color: #999;" v-if="detail.status=='0'">未结</span>
-               <span class="layui-badge" style="background-color: #5FB878;" v-if="detail.status=='1'">已结</span>
 
-              <span class="layui-badge layui-bg-black" v-if="detail.stick">置顶</span>
-              <span class="layui-badge layui-bg-red" v-if="detail.best">精帖</span>
+              <!--<span class="layui-badge" style="background-color: #999;" v-if="detail.status=='0'">未结</span>-->
+               <!--<span class="layui-badge" style="background-color: #5FB878;" v-if="detail.status=='1'">已结</span>-->
 
-              <div class="fly-admin-box" v-if='userSession != null'>
-                <span class="layui-btn layui-btn-xs jie-admin" type="del">删除</span>
+              <!--<span class="layui-badge layui-bg-black" v-if="detail.stick">置顶</span>-->
 
-                <span class="layui-btn layui-btn-xs jie-admin" type="set" field="stick" rank="1">置顶</span>
-                <!-- <span class="layui-btn layui-btn-xs jie-admin" type="set" field="stick" rank="0" style="background-color:#ccc;">取消置顶</span> -->
 
-                <span class="layui-btn layui-btn-xs jie-admin" type="set" field="status" rank="1">加精</span>
-                <!-- <span class="layui-btn layui-btn-xs jie-admin" type="set" field="status" rank="0" style="background-color:#ccc;">取消加精</span> -->
+              <div class="fly-admin-box detail_time_operation" data-id="123">
+                <div class="detail_time">
+                  <a href="javascript:;" class="fly-link">
+                    <cite>{{detail.nickName}}</cite>
+                    <i class="iconfont icon-renzheng" title=""></i>
+                    <!--<i class="layui-badge fly-badge-vip">VIP3</i>-->
+                  </a>
+                  <span>{{detail.createTime}}</span>
+                </div>
+                <div class="detail_operation">
+
+                  <span class="fly-list-nums detail_read">
+                    <a href="#comment"><i class="iconfont" title="回答">&#xe60c;</i>{{detail.commentTimes}}</a>
+                    <a><i class="iconfont" title="人气">&#xe60b;</i> {{detail.seenTimes}}</a>
+                  </span>
+
+                  <div class="detail_dst_operation" v-if='userSession != null'>
+                    <span class="layui-btn layui-btn-xs jie-admin" type="del">删帖</span>
+
+                    <span class="layui-btn layui-btn-xs jie-admin" type="set" field="stick" rank="1">置顶</span>
+                    <!-- <span class="layui-btn layui-btn-xs jie-admin" type="set" field="stick" rank="0" style="background-color:#ccc;">取消置顶</span> -->
+
+                    <span class="layui-btn layui-btn-xs jie-admin" type="set" field="status" rank="1">加精</span>
+                    <!-- <span class="layui-btn layui-btn-xs jie-admin" type="set" field="status" rank="0" style="background-color:#ccc;">取消加精</span> -->
+                  </div>
+                </div>
               </div>
-              <span class="fly-list-nums">
-                <a href="#comment"><i class="iconfont" title="回答">&#xe60c;</i>{{detail.commentTimes}}</a>
-                <i class="iconfont" title="人气">&#xe60b;</i> {{detail.seenTimes}}
-              </span>
+              <!--<span class="fly-list-nums">-->
+                <!--<a href="#comment"><i class="iconfont" title="回答">&#xe60c;</i>{{detail.commentTimes}}</a>-->
+                <!--<i class="iconfont" title="人气">&#xe60b;</i> {{detail.seenTimes}}-->
+              <!--</span>-->
             </div>
-            <div class="detail-about">
-              <a class="fly-avatar" href="javascript:;">
-                <img :src="detail.headPortraitUrl" alt="贤心">
-              </a>
-              <div class="fly-detail-user">
-                <a href="javascript:;" class="fly-link">
-                  <cite>{{detail.nickName}}</cite>
-                  <i class="iconfont icon-renzheng" title=""></i>
-                  <!--<i class="layui-badge fly-badge-vip">VIP3</i>-->
-                </a>
-                <span>{{detail.createTime}}</span>
-              </div>
-              <div class="detail-hits" id="LAY_jieAdmin" data-id="123" v-if='userSession != null'>
-                <span style="padding-right: 10px; color: #FF7200">悬赏：60飞吻</span>
-                <span class="layui-btn layui-btn-xs jie-admin" type="edit"><a href="add.html">编辑此贴</a></span>
-              </div>
-            </div>
+
+            <!--<div class="detail-about">-->
+              <!--<a class="fly-avatar" href="javascript:;">-->
+                <!--<img :src="detail.headPortraitUrl" alt="贤心">-->
+              <!--</a>-->
+              <!--<div class="fly-detail-user">-->
+                <!--<a href="javascript:;" class="fly-link">-->
+                  <!--<cite>{{detail.nickName}}</cite>-->
+                  <!--<i class="iconfont icon-renzheng" title=""></i>-->
+                  <!--&lt;!&ndash;<i class="layui-badge fly-badge-vip">VIP3</i>&ndash;&gt;-->
+                <!--</a>-->
+                <!--&lt;!&ndash;<span>{{detail.createTime}}</span>&ndash;&gt;-->
+              <!--</div>-->
+              <!--<div class="detail-hits" id="LAY_jieAdmin" data-id="123" v-if='userSession != null'>-->
+                <!--<span style="padding-right: 10px; color: #FF7200">悬赏：60飞吻</span>-->
+                <!--&lt;!&ndash;<span class="layui-btn layui-btn-xs jie-admin" type="edit"><a href="add.html">编辑此贴</a></span>&ndash;&gt;-->
+              <!--</div>-->
+            <!--</div>-->
             <div class="detail-body photos" v-html="detail.content"></div>
+
+            <!--<div class="detail-about detail_aboutAuthor">-->
+              <!--<a class="fly-avatar" href="javascript:;">-->
+                <!--<img :src="detail.headPortraitUrl" alt="贤心">-->
+              <!--</a>-->
+              <!--<div class="fly-detail-user">-->
+                <!--<a href="javascript:;" class="fly-link">-->
+                  <!--<cite>{{detail.nickName}}</cite>-->
+                  <!--<i class="iconfont icon-renzheng" title=""></i>-->
+                  <!--&lt;!&ndash;<i class="layui-badge fly-badge-vip">VIP3</i>&ndash;&gt;-->
+                <!--</a>-->
+                <!--&lt;!&ndash;<span>{{detail.createTime}}</span>&ndash;&gt;-->
+              <!--</div>-->
+            <!--</div>-->
+
           </div>
 
           <div class="fly-panel detail-box" id="flyReply">
@@ -289,5 +323,100 @@
 </script>
 
 <style scoped>
+  .detail_lableTip span:first-child{
+     background: rgba(0,0,0,0) !important;
+     color: #bbbbbb !important;
+     border: 1px solid #bbbbbb;
+     border-radius: 4px;
+     margin-right: 10px;
+     top: -4px;
+     margin-left: 0;
+   }
+  .detail_lableTip span{
+    border-radius: 4px;
+    margin-left: 10px;
+    top: -4px;
+  }
+  .detail_time_operation{
+    width: 100%;
+    height: 30px;
+    /*background: #eeeeee;*/
+    margin-left: 0;
+    border-bottom: 1px dotted #dfdfdf;
+    padding-bottom: 10px;
+  }
+  .detail_time{
+    line-height: 30px;
+    width: 40%;
+    float: left;
+    font-size: 12px;
+    color: #999999;
+  }
+  .detail_time a{
+    margin-right: 10px;
+  }
+  .detail_time a i{
+    font-size: 12px;
+  }
 
+  .detail_operation{
+    min-width: 10%;
+    float: right;
+    height: 30px;
+    /*background: red;*/
+  }
+  .detail_read{
+    position: static;
+    float: left;
+    width: auto;
+  }
+  .detail_read a{
+    font-size: 12px;
+  }
+  .detail_read a i{
+    font-size: 14px;
+    color: #999;
+    line-height: 30px;
+  }
+  .detail_read a:last-child{
+  }
+  .detail_dst_operation{
+    float: left;
+    margin-left: 10px;
+    border-left: 1px solid #eeeeee;
+    padding-right: 20px;
+    margin-top: 6px;
+  }
+  .detail_dst_operation span{
+    background: rgba(0,0,0,0);
+    color: #999;
+    /*line-height: 30px;*/
+  }
+  .detail_dst_operation span:first-child{
+    padding-left: 10px;
+  }
+  .detail-body{
+    font-size: 14px;
+  }
+
+  .detail_aboutAuthor{
+    margin-top: 30px;
+    height: 30px;
+  }
+  .detail_aboutAuthor img{
+    width: 26px;
+    height: 26px;
+  }
+
+</style>
+<style>
+  .detail-body hr,hr{
+    background-color: #ffffff !important;
+  }
+  pre{
+    /*background-color: #e7dfc7;*/
+    /*color: #3769b0;*/
+    font-size: 14px;
+    border-left: 6px solid #468a85;
+  }
 </style>
