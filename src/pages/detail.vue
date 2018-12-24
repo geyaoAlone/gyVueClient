@@ -225,51 +225,13 @@
         <div class="layui-col-md4">
           <dl class="fly-panel fly-list-one">
             <dt class="fly-panel-title">本周热议</dt>
-            <dd>
-              <a href="">基于 layui 的极简社区页面模版</a>
-              <span><i class="iconfont icon-pinglun1"></i> 16</span>
-            </dd>
-            <dd>
-              <a href="">基于 layui 的极简社区页面模版</a>
-              <span><i class="iconfont icon-pinglun1"></i> 16</span>
-            </dd>
-            <dd>
-              <a href="">基于 layui 的极简社区页面模版</a>
-              <span><i class="iconfont icon-pinglun1"></i> 16</span>
-            </dd>
-            <dd>
-              <a href="">基于 layui 的极简社区页面模版</a>
-              <span><i class="iconfont icon-pinglun1"></i> 16</span>
-            </dd>
-            <dd>
-              <a href="">基于 layui 的极简社区页面模版</a>
-              <span><i class="iconfont icon-pinglun1"></i> 16</span>
-            </dd>
-            <dd>
-              <a href="">基于 layui 的极简社区页面模版</a>
-              <span><i class="iconfont icon-pinglun1"></i> 16</span>
-            </dd>
-            <dd>
-              <a href="">基于 layui 的极简社区页面模版</a>
-              <span><i class="iconfont icon-pinglun1"></i> 16</span>
-            </dd>
-            <dd>
-              <a href="">基于 layui 的极简社区页面模版</a>
-              <span><i class="iconfont icon-pinglun1"></i> 16</span>
-            </dd>
-            <dd>
-              <a href="">基于 layui 的极简社区页面模版</a>
-              <span><i class="iconfont icon-pinglun1"></i> 16</span>
-            </dd>
-            <dd>
-              <a href="">基于 layui 的极简社区页面模版</a>
-              <span><i class="iconfont icon-pinglun1"></i> 16</span>
+            <dd v-for="(item ,i) in heatData">
+              <a href="javascript:;" @click="otherDetail(item.serialNumber)">{{item.title}}</a>
+              <span><i class="iconfont icon-pinglun1"></i> {{item.seenTimes}}</span>
             </dd>
 
-            <!-- 无数据时 -->
-            <!--
-            <div class="fly-none">没有相关数据</div>
-            -->
+
+            <div class="fly-none" v-if="heatData == []">没有相关数据</div>
           </dl>
 
           <div class="fly-panel">
@@ -301,20 +263,40 @@
         data: function() {
           return {
             userSession: this.$store.state.session,
-            detail:{}
+            detail:{},
+            heatData:[]
+          }
+        },
+        methods:{
+          otherDetail:function(id){
+            this.$http.get('/api/lobby/queryConnotationDetail?serialNumber='+id).then(result => {
+              console.info(result)
+              if(result.code =='-1'){
+                layer.msg('查看明细异常！'+result.message,{time:1500},function(){
+                  _this.$router.push({path: 'firstPage'})
+                })
+              }else{
+                var data = result.data
+                data.detailData.content = fly.content(data.detailData.content)
+                this.detail = data.detailData
+                this.heatData = data.heatData
+              }
+            });
           }
         },
         created(){
           let _this = this
           this.$http.get('/api/lobby/queryConnotationDetail?serialNumber='+this.$route.query.id).then(result => {
             console.info(result)
-            if(!result){
-              layer.msg('查看明细异常！',{time:1500},function(){
+            if(result.code =='-1'){
+              layer.msg('查看明细异常！'+result.message,{time:1500},function(){
                 _this.$router.push({path: 'firstPage'})
               })
             }else{
-              result.content = fly.content(result.content)
-              this.detail = result
+              var data = result.data
+              data.detailData.content = fly.content(data.detailData.content)
+              this.detail = data.detailData
+              this.heatData = data.heatData
             }
           });
 
