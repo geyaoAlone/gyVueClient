@@ -96,6 +96,8 @@
             <!--</div>-->
             <div class="detail-body photos" v-html="detail.content"></div>
 
+
+            <!--用户头像/信息开始-->
             <!--<div class="detail-about detail_aboutAuthor">-->
               <!--<a class="fly-avatar" href="javascript:;">-->
                 <!--<img :src="detail.headPortraitUrl" alt="贤心">-->
@@ -109,6 +111,8 @@
                 <!--&lt;!&ndash;<span>{{detail.createTime}}</span>&ndash;&gt;-->
               <!--</div>-->
             <!--</div>-->
+            <!--用户头像/信息开始-->
+
 
           </div>
 
