@@ -118,11 +118,7 @@
           var username = this.userSession.username;
           if(username){
             this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
-              if(result.result =='0'){
-                layer.msg(result.failReason,{time:1500})
-              }else{
-                document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-              }
+              document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
             })
           }
         },
@@ -142,14 +138,12 @@
               $('#L_vercode').focus();
             });
           }else{
-            console.info(this.formData)
-            this.$http.post('api/user/saveNewArticle',this.formData,this.userSession.token).then(result => {
-              if(result.code =='-1'){
-                layer.msg(result.message,{time:1000});
-              }else{
-                layer.msg('添加成功')
-              }
-
+            var _this = this;
+            _this.$http.post('api/user/saveNewArticle',_this.formData,_this.userSession.token).then(result => {
+              var _id = result.data;
+              layer.msg('恭喜！添加成功',{time:1000},function(){
+                this.$router.push({path: 'detail',query:{id:_id}})
+              })
             })
 
           }
@@ -200,11 +194,7 @@
         }
         this.formData.username = info.username;
         this.$http.get('/api/gateway/identifyCode?username='+info.username).then(result => {
-          if(result.result =='0'){
-            layer.msg(result.failReason+' 刷新重试',{time:1500})
-          }else{
-            document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-          }
+          document.getElementById('identifyCodeImg').setAttribute('src','data:image/jpeg;base64,'+result.data);
         })
       }
     }

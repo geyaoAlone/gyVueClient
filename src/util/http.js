@@ -24,16 +24,22 @@ function checkStatus (response) {
     // loading close
     //Indicator.close();
     try {
-        if(/^(200|304|400|401)$/.test(response.status)){
-            return response.data;
+        if(/^(200|304)$/.test(response.status)){
+          if(response.data.code === -1){
+            return alert(response.data.message);
+          }
+          return response.data;
         }
-
+        if(/^(400|401)$/.test(response.status)){
+          alert(response.data.message);
+          return
+        }
         if(+response.status === 500 ){
-            alert('系统异常');
+          alert('系统异常');
+          return
         }
-
     } catch (e) {
-        alert('网络异常')
+      return alert('网络异常')
     }
 
 }

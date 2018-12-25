@@ -14,7 +14,7 @@
                   <div class="layui-form-item">
                     <label for="username" class="layui-form-label">用户名</label>
                     <div class="layui-input-inline">
-                      <input type="text" class="layui-input" v-model="loginInfo.username" id="username" @blur="takecheckimg()">
+                      <input type="text" class="layui-input" v-model="loginInfo.username" id="username">
                     </div>
                   </div>
                   <div class="layui-form-item">
@@ -27,7 +27,7 @@
                   <div class="layui-form-item ">
                     <label for="L_vercode" class="layui-form-label">人类验证</label>
                     <div class="layui-input-inline">
-                      <input type="text" v-model="loginInfo.identifyCode" id="L_vercode" name="vercode" placeholder="请写出后面的答案" class="layui-input">
+                      <input type="text" v-model="loginInfo.identifyCode" @click="takecheckimg()" id="L_vercode" name="vercode" placeholder="请写出后面的答案" class="layui-input">
                     </div>
                     <div class="">
                       <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
@@ -65,6 +65,7 @@
           },
           takecheckimg:function(){
             var username = this.loginInfo.username;
+            console.info(username)
             if(!username){
               layer.msg('你倒是填用户名啊！',{time:1500},function(){
                 $('#username').focus();
@@ -72,14 +73,7 @@
               return
             }
             this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
-              if(result.result =='0'){
-                layer.msg(result.failReason,{time:1500},function(){
-                  $('#username').focus();
-                })
-              }else{
                 document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-              }
-
             })
 
           },
@@ -87,6 +81,7 @@
             var username = this.loginInfo.username;
             if(username){
               this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
+                console.info(result)
                 if(result.result =='0'){
                   layer.msg(result.failReason,{time:1500},function(){
                     $('#username').focus();
@@ -119,24 +114,23 @@
             }
             this.$http.post('/api/gateway/login',this.loginInfo).then(result => {
               console.info(result)
-              if(result.code ===0){
-                var token = result.data;
+              if(result.code === 1){
+                let token = result.data;
                 layer.msg('登陆成功！',{time:1000},function(){
                   _this.$http.get('/api/user/getUserInfo?username='+_this.loginInfo.username,token).then(result => {
-                    if(result.code =='-1'){
+                    if(result.code == 0){
                       layer.msg('拉取客户信息失败！请重新登录'
                         ,{time:1500}
                         ,function () {
                           _this.$http.get('/api/gateway/identifyCode?username='+_this.loginInfo.username).then(result => {
-                            if(result.result !='0'){
                               document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-                            }
                           })
                         }
                       );
                     }else{
-                      let session = result;
-                      session.token = token;
+                      let session = result.data;
+                      console.info(session)
+                      session.token = token
                       _this.$store.commit('setSession',session);
                       window.location.reload();
                       _this.$router.push({path: '/'})
@@ -146,11 +140,7 @@
               }else{
                 layer.msg(result.message,{time:2000},function () {
                   this.$http.get('/api/gateway/identifyCode?username='+_this.loginInfo.username).then(result => {
-                    if(result.result =='0'){
-                      layer.msg(result.failReason,{time:1500})
-                    }else{
-                      document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-                    }
+                    document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
                   })
                 });
               }

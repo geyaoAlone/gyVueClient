@@ -79,16 +79,11 @@ export default {
       }, function(){
         //_this.$store.commit('clearSession',this.userSession)
         _this.$http.get('/api/user/logout?username='+_this.userSession.username,_this.userSession.token).then(result => {
-          if(result.code == '0'){
             layer.msg('退出成功',{time:1000},function(){
               _this.$store.commit('clearSession',this.userSession)
               window.location.reload()
               _this.$router.push({path: '/'})
             })
-
-          }else{
-            layer.msg('退出失败')
-          }
         });
 
       }, function(){
@@ -106,8 +101,6 @@ export default {
   mounted() {
     layui.use('element', function() {
       var element = layui.element;
-
-
     });
   }
 }

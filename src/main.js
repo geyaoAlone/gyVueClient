@@ -11,7 +11,7 @@ Vue.prototype.$http = http;
 /* eslint-disable no-new */
 // 把jQuery 设置为全局
 //window.$ = window.jQuery = layui.jquery;
-var layer,form,element;
+var layer;
 layui.use('layer', function() {
   layer = layui.layer;
 });

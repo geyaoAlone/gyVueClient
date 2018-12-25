@@ -1,34 +1,34 @@
 <template>
   <div>
-    <div class="fly-home fly-panel" style="background-image: url();">
-      <img src="https://tva1.sinaimg.cn/crop.0.0.118.118.180/5db11ff4gw1e77d3nqrv8j203b03cweg.jpg" alt="贤心">
-      <i class="iconfont icon-renzheng" title="Fly社区认证"></i>
+    <div class="fly-home fly-panel">
+      <img :src="userInfo.headPortraitUrl">
+      <i class="iconfont icon-renzheng" title="小站认证"></i>
       <h1>
-        贤心
-        <i class="iconfont icon-nan"></i>
-        <!-- <i class="iconfont icon-nv"></i>  -->
-        <i class="layui-badge fly-badge-vip">VIP3</i>
-        <!--
+        {{userInfo.nickname}}
+        <i class="iconfont icon-nan" v-if="userInfo.sex =='1'"></i>
+        <i class="iconfont icon-nv" v-if="userInfo.sex =='2'"></i>
+        <!--<i class="layui-badge fly-badge-vip">VIP3</i>-->
+<!--
         <span style="color:#c00;">（管理员）</span>
         <span style="color:#5FB878;">（社区之光）</span>
         <span>（该号已被封）</span>
-        -->
+-->
       </h1>
 
-      <p style="padding: 10px 0; color: #5FB878;">认证信息：layui 作者</p>
+      <!--<p style="padding: 10px 0; color: #5FB878;">认证信息：layui 作者</p>-->
 
       <p class="fly-home-info">
-        <i class="iconfont icon-kiss" title="飞吻"></i><span style="color: #FF7200;">66666 飞吻</span>
-        <i class="iconfont icon-shijian"></i><span>2015-6-17 加入</span>
-        <i class="iconfont icon-chengshi"></i><span>来自杭州</span>
+        <!--<i class="iconfont icon-kiss" title="飞吻"></i><span style="color: #FF7200;">66666 飞吻</span>-->
+        <i class="iconfont icon-shijian"></i><span>{{userInfo.createDate}} 加入</span>
+        <i class="iconfont icon-chengshi"></i><span>来自{{userInfo.city}}</span>
       </p>
 
-      <p class="fly-home-sign">（人生仿若一场修行）</p>
+      <p class="fly-home-sign">（{{userInfo.description}}）</p>
 
-      <div class="fly-sns" data-user="">
+      <!--<div class="fly-sns" data-user="">
         <a href="javascript:;" class="layui-btn layui-btn-primary fly-imActive" data-type="addFriend">加为好友</a>
         <a href="javascript:;" class="layui-btn layui-btn-normal fly-imActive" data-type="chat">发起会话</a>
-      </div>
+      </div>-->
 
     </div>
 
@@ -36,45 +36,16 @@
       <div class="layui-row layui-col-space15">
         <div class="layui-col-md6 fly-home-jie">
           <div class="fly-panel">
-            <h3 class="fly-panel-title">贤心 最近的提问</h3>
+            <h3 class="fly-panel-title">贤心 最近的发帖</h3>
             <ul class="jie-row">
-              <li>
-                <span class="fly-jing">精</span>
-                <a href="" class="jie-title"> 基于 layui 的极简社区页面模版</a>
-                <i>刚刚</i>
-                <em class="layui-hide-xs">1136阅/27答</em>
+              <li v-for="(item ,i) in ownCatalogue" :key="i" >
+                <span class="fly-jing" v-if="item.best">精</span>
+                <span class="fly-jing" v-if="!item.publicity">私</span>
+                <a href="javascript:;" class="jie-title" @click="getDetail(item.serialNumber)">{{item.title}}</a>
+                <i>{{item.createTime}}</i>
+                <em class="layui-hide-xs">{{item.seenTimes}}阅/{{item.commentTimes}}答</em>
               </li>
-              <li>
-                <a href="" class="jie-title"> 基于 layui 的极简社区页面模版</a>
-                <i>1天前</i>
-                <em class="layui-hide-xs">1136阅/27答</em>
-              </li>
-              <li>
-                <a href="" class="jie-title"> 基于 layui 的极简社区页面模版</a>
-                <i>2017-10-30</i>
-                <em class="layui-hide-xs">1136阅/27答</em>
-              </li>
-              <li>
-                <a href="" class="jie-title"> 基于 layui 的极简社区页面模版</a>
-                <i>1天前</i>
-                <em class="layui-hide-xs">1136阅/27答</em>
-              </li>
-              <li>
-                <a href="" class="jie-title"> 基于 layui 的极简社区页面模版</a>
-                <i>1天前</i>
-                <em class="layui-hide-xs">1136阅/27答</em>
-              </li>
-              <li>
-                <a href="" class="jie-title"> 基于 layui 的极简社区页面模版</a>
-                <i>1天前</i>
-                <em class="layui-hide-xs">1136阅/27答</em>
-              </li>
-              <li>
-                <a href="" class="jie-title"> 基于 layui 的极简社区页面模版</a>
-                <i>1天前</i>
-                <em class="layui-hide-xs">1136阅/27答</em>
-              </li>
-              <!-- <div class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><i style="font-size:14px;">没有发表任何求解</i></div> -->
+              <div v-if="ownCatalogue == []" class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><i style="font-size:14px;">没有发表任何求解</i></div>
             </ul>
           </div>
         </div>
@@ -117,7 +88,40 @@ full: true
 
 <script>
     export default {
-        name: "my-homepage"
+        name: "my-homepage",
+        data:function(){
+          return{
+            userInfo:{},
+            ownCatalogue:[]
+          }
+        },
+        created(){
+          var username = this.$route.params.username
+          var _this = this
+          var url = "/api/lobby/getOwnCatalogue?"
+
+          if(username){
+            url+="username="+username
+          }else{
+            _this.userInfo = _this.$store.state.session;
+            if(!_this.userInfo){
+              _this.$router.push({path: 'firstPage'})
+            }
+            var username = this.userInfo.username
+            url+="username="+username
+          }
+
+          this.$http.get(url).then(result => {
+            if(result != null){
+              this.ownCatalogue = result.data.ownCatalogue
+              this.userInfo = result.data.user
+            }
+
+          });
+
+
+
+        }
     }
 </script>
 

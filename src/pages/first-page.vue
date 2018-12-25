@@ -36,7 +36,7 @@
             </div>
             <ul class="fly-list">
               <li v-for="(item ,i) in stickList" :key="i" v-if="item.stick=='1'">
-                <a href="javascript:;" class="fly-avatar" >
+                <a href="javascript:;" class="fly-avatar" @click="authorInfo(item.author)">
                   <img :src="item.headPortraitUrl" alt="葛耀">
                 </a>
                 <h2>
@@ -44,7 +44,7 @@
                   <a href="javascript:;" @click="detail(item.serialNumber)">{{item.title}}</a>
                 </h2>
                 <div class="fly-list-info">
-                  <a href="javascript:;" link>
+                  <a href="javascript:;" @click="authorInfo(item.author)">
                     <cite>{{item.nickName}}</cite>
                     <i class="iconfont icon-renzheng" title="认证信息：XXX"></i>
                     <!--<i class="layui-badge fly-badge-vip">VIP3</i>-->
@@ -86,7 +86,7 @@
 
             <ul class="fly-list">
               <li v-for="(item ,i) in catalogueList" :key="i" v-if="item.stick=='0'">
-                <a href="javascript:;" class="fly-avatar">
+                <a href="javascript:;" class="fly-avatar" @click="authorInfo(item.author)">
                   <img :src="item.headPortraitUrl" alt="">
                 </a>
                 <h2>
@@ -94,7 +94,7 @@
                   <a href="javascript:;" @click="detail(item.serialNumber)">{{item.title}}</a>
                 </h2>
                 <div class="fly-list-info">
-                  <a href="javascript:;" link>
+                  <a href="javascript:;" @click="authorInfo(item.author)">
                     <cite>{{item.nickName}}</cite>
                     <i class="iconfont icon-renzheng" title="认证信息：XXX"></i>
                     <!--
@@ -282,6 +282,10 @@
             this.catalogueList = result.catalogueList
           });
         },
+        authorInfo:function (username) {
+          //this.$router.push({path: 'myHomepage',query:{nickname:username}})
+          this.$router.push({name: 'my-homepage', params: {username: username}})
+        }
       },
       mounted() {
 
@@ -291,9 +295,8 @@
         console.info(this.userSession)
         var url = this.queryUrl+'&orderType=id'
         this.$http.get(url).then(result => {
-          console.info(result)
-          this.catalogueList = result.catalogueList
-          this.stickList = result.stickList
+          this.catalogueList = result.data.catalogueList
+          this.stickList = result.data.stickList
         });
 
       }
