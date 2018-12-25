@@ -271,33 +271,21 @@
           otherDetail:function(id){
             this.$http.get('/api/lobby/queryConnotationDetail?serialNumber='+id).then(result => {
               console.info(result)
-              if(result.code =='-1'){
-                layer.msg('查看明细异常！'+result.message,{time:1500},function(){
-                  _this.$router.push({path: 'firstPage'})
-                })
-              }else{
-                var data = result.data
-                data.detailData.content = fly.content(data.detailData.content)
-                this.detail = data.detailData
-                this.heatData = data.heatData
-              }
+              var data = result.data
+              data.detailData.content = fly.content(data.detailData.content)
+              this.detail = data.detailData
+              this.heatData = data.heatData
+
             });
           }
         },
         created(){
           let _this = this
           this.$http.get('/api/lobby/queryConnotationDetail?serialNumber='+this.$route.query.id).then(result => {
-            console.info(result)
-            if(result.code =='-1'){
-              layer.msg('查看明细异常！'+result.message,{time:1500},function(){
-                _this.$router.push({path: 'firstPage'})
-              })
-            }else{
-              var data = result.data
-              data.detailData.content = fly.content(data.detailData.content)
-              this.detail = data.detailData
-              this.heatData = data.heatData
-            }
+            var data = result.data
+            data.detailData.content = fly.content(data.detailData.content)
+            this.detail = data.detailData
+            this.heatData = data.heatData
           });
 
         }
