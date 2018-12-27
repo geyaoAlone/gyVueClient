@@ -6,10 +6,10 @@
         <div class="layui-container">
           <ul class="layui-clear">
             <li class="layui-hide-xs layui-this"><a href="/">最新<span class="layui-badge-dot"></span></a></li>
-            <li><a href="javascript:;">问题</a></li>
-            <li><a href="javascript:;">话题</a></li>
-            <li><a href="javascript:;">分享</a></li>
-            <li><a href="javascript:;">原创</a></li>
+            <li><a href="javascript:;" @click="queryType($event,'question')">问题</a></li>
+            <li><a href="javascript:;" @click="queryType($event,'gambit')">话题</a></li>
+            <li><a href="javascript:;" @click="queryType($event,'share')">分享</a></li>
+            <li><a href="javascript:;" @click="queryType($event,'original')">原创</a></li>
             <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
 
             <!-- 用户登入后显示 -->
@@ -121,21 +121,20 @@
               <legend>回帖</legend>
             </fieldset>
 
-            <ul class="jieda" id="jieda">
-              <li data-id="111" class="jieda-daan">
-                <a name="item-1111111111"></a>
+            <ul class="jieda" id="jieda" >
+              <li class="jieda-daan" v-for="(item ,i) in commentList">
                 <div class="detail-about detail-about-reply">
                   <a class="fly-avatar" href="">
-                    <img src="https://tva1.sinaimg.cn/crop.0.0.118.118.180/5db11ff4gw1e77d3nqrv8j203b03cweg.jpg" alt=" ">
+                    <img :src="item.authorHeadUrl" alt=" ">
                   </a>
                   <div class="fly-detail-user">
                     <a href="" class="fly-link">
-                      <cite>贤心</cite>
-                      <i class="iconfont icon-renzheng" title="认证信息：XXX"></i>
-                      <i class="layui-badge fly-badge-vip">VIP3</i>
+                      <cite>{{item.author}}</cite>
+                      <i class="iconfont icon-renzheng" title="VIP"></i>
+                      <!--<i class="layui-badge fly-badge-vip">VIP3</i>-->
                     </a>
 
-                    <span>(楼主)</span>
+                    <span v-if="item.username == detail.author">(楼主)</span>
                     <!--
                     <span style="color:#5FB878">(管理员)</span>
                     <span style="color:#FF9E3F">（社区之光）</span>
@@ -144,83 +143,45 @@
                   </div>
 
                   <div class="detail-hits">
-                    <span>2017-11-30</span>
+                    <span>{{item.createTime}}</span>
                   </div>
 
-                  <i class="iconfont icon-caina" title="最佳答案"></i>
+                  <!--<i class="iconfont icon-caina" title="最佳答案"></i>-->
                 </div>
-                <div class="detail-body jieda-body photos">
-                  <p>香菇那个蓝瘦，这是一条被采纳的回帖</p>
+                <div class="detail-body jieda-body photos" v-html="item.replyContent">
+
                 </div>
                 <div class="jieda-reply">
-              <span class="jieda-zan zanok" type="zan">
-                <i class="iconfont icon-zan"></i>
-                <em>66</em>
-              </span>
-                  <span type="reply">
-                <i class="iconfont icon-svgmoban53"></i>
-                回复
-              </span>
-                  <div class="jieda-admin">
-                    <span type="edit">编辑</span>
-                    <span type="del">删除</span>
+                <span class="jieda-zan" type="zan" @click="thumbUp($event,item.id,i)">
+                  <i class="iconfont icon-zan"></i>
+                  <em>{{item.thumbUpTimes}}</em>
+                </span>
+                <span type="reply" @click="reply(item.author)">
+                  <i class="iconfont icon-svgmoban53"></i>回复
+                </span>
+                  <div class="jieda-admin" v-if="userSession != null && userSession.username == item.username">
+                    <span type="edit" @click="edit(item.replyContent,item.id)">编辑</span>
+                    <span type="del" @click="del(item.id)">删除</span>
                     <!-- <span class="jieda-accept" type="accept">采纳</span> -->
                   </div>
                 </div>
               </li>
 
-              <li data-id="111">
-                <a name="item-1111111111"></a>
-                <div class="detail-about detail-about-reply">
-                  <a class="fly-avatar" href="">
-                    <img src="https://tva1.sinaimg.cn/crop.0.0.118.118.180/5db11ff4gw1e77d3nqrv8j203b03cweg.jpg" alt=" ">
-                  </a>
-                  <div class="fly-detail-user">
-                    <a href="" class="fly-link">
-                      <cite>贤心</cite>
-                    </a>
-                  </div>
-                  <div class="detail-hits">
-                    <span>2017-11-30</span>
-                  </div>
-                </div>
-                <div class="detail-body jieda-body photos">
-                  <p>蓝瘦那个香菇，这是一条没被采纳的回帖</p>
-                </div>
-                <div class="jieda-reply">
-              <span class="jieda-zan" type="zan">
-                <i class="iconfont icon-zan"></i>
-                <em>0</em>
-              </span>
-                  <span type="reply">
-                <i class="iconfont icon-svgmoban53"></i>
-                回复
-              </span>
-                  <div class="jieda-admin">
-                    <span type="edit">编辑</span>
-                    <span type="del">删除</span>
-                    <span class="jieda-accept" type="accept">采纳</span>
-                  </div>
-                </div>
-              </li>
 
               <!-- 无数据时 -->
-              <!-- <li class="fly-none">消灭零回复</li> -->
+               <li class="fly-none" v-if="commentList == []">消灭零回复</li>
             </ul>
 
             <div class="layui-form layui-form-pane">
-              <form action="/jie/reply/" method="post">
-                <div class="layui-form-item layui-form-text">
-                  <a name="comment"></a>
-                  <div class="layui-input-block">
-                    <textarea id="L_content" name="content" required lay-verify="required" placeholder="请输入内容"  class="layui-textarea fly-editor" style="height: 150px;"></textarea>
-                  </div>
+              <div class="layui-form-item layui-form-text">
+                <a name="comment"></a>
+                <div class="layui-input-block">
+                  <textarea id="L_content" v-model="content" name="content" placeholder="请输入内容"  class="layui-textarea fly-editor" style="height: 150px;"></textarea>
                 </div>
-                <div class="layui-form-item">
-                  <input type="hidden" name="jid" value="123">
-                  <button class="layui-btn" lay-filter="*" lay-submit>提交回复</button>
-                </div>
-              </form>
+              </div>
+              <div class="layui-form-item">
+                <button class="layui-btn" @click="sbReply()">提交回复</button>
+              </div>
             </div>
           </div>
         </div>
@@ -238,7 +199,7 @@
             <div class="fly-none" v-if="heatData == []">没有相关数据</div>
           </dl>
 
-          <div class="fly-panel">
+         <!-- <div class="fly-panel">
             <div class="fly-panel-title">
               这里可作为广告区域
             </div>
@@ -250,7 +211,7 @@
           <div class="fly-panel" style="padding: 20px 0; text-align: center;">
             <img src="" style="max-width: 100%;" alt="layui">
             <p style="position: relative; color: #666;">微信扫码关注 layui 公众号</p>
-          </div>
+          </div>-->
 
         </div>
 
@@ -261,14 +222,16 @@
 </template>
 
 <script>
-    import {fly} from '../util/editUtil.js';
+    import {fly} from '../util/detailUtils.js';
     export default {
         name: "detail",
         data: function() {
           return {
             userSession: this.$store.state.session,
             detail:{},
-            heatData:[]
+            heatData:[],
+            content:'',
+            commentList:[]
           }
         },
         methods:{
@@ -281,15 +244,91 @@
               this.heatData = data.heatData
 
             });
+          },
+          queryType:function (e,type) {
+            var dom = $(e.srcElement).parent();
+            if(!dom.hasClass('layui-this')){
+              dom.parent().find('.layui-this').removeClass('layui-this');
+              dom.addClass('layui-this');
+            }
+            this.$router.push({name: 'first-page', params: {type: type}})
+
+          },
+          sbReply:function(){
+            console.info(this.userSession)
+            if(this.userSession){
+              var comment = {serialNumber : this.detail.serialNumber,
+                                   author : this.userSession.nickname,
+                                 username : this.userSession.username,
+                             replyContent : this.content,
+                            authorHeadUrl : this.userSession.headPortraitUrl,
+                             thumbUpTimes : 0
+              }
+              console.info(comment)
+              this.$http.post('api/user/saveComment',comment,this.userSession.token).then(result => {
+                result.data.forEach(comment=>{
+                  comment.replyContent = fly.content(comment.replyContent)
+                });
+                this.commentList =result.data
+                layer.msg("评论成功",{time:1000})
+              });
+            }else{
+              layer.msg("请先登陆",{time:1000})
+            }
+          },
+          thumbUp:function (e,id,i) {
+            var dom = $(e.srcElement);
+            if(dom.hasClass('zanok')){
+              layer.msg("您已点过赞",{time:1000})
+            }else{
+              var URL = "/api/lobby/updateThumbUp?id="+id+"&serialNumber="+this.detail.serialNumber
+              if(this.userSession){
+                URL += "&username="+this.userSession.username
+              }
+              this.$http.get(URL).then(result => {
+                if(result.code ==1){
+                  dom.addClass('zanok');
+                  this.commentList[i].thumbUpTimes += 1
+                  layer.msg("点赞成功",{time:1000})
+                }
+                if(result.code ==0){
+                  dom.addClass('zanok');
+                  layer.msg("您已点过赞",{time:1000})
+                }
+              })
+            }
+          },
+          reply:function (replyer) {
+            if(this.userSession){
+              this.content += "@"+replyer
+            }else{
+              layer.msg("请先登陆",{time:1000})
+            }
           }
+        },
+        mounted(){
+          fly.vue(this);//把参数传入控件
+          fly.layEditor({
+            elem: '.fly-editor'
+          });
         },
         created(){
           let _this = this
-          this.$http.get('/api/lobby/queryConnotationDetail?serialNumber='+this.$route.query.id).then(result => {
+          var URL = '/api/lobby/queryConnotationDetail?serialNumber='+this.$route.query.id
+          if(this.userSession){
+            URL +='&username='+this.userSession.username
+          }
+          this.$http.get(URL).then(result => {
             var data = result.data
+            console.info(data)
             data.detailData.content = fly.content(data.detailData.content)
             this.detail = data.detailData
             this.heatData = data.heatData
+            data.commentList.forEach(comment=>{
+              comment.replyContent = fly.content(comment.replyContent)
+            });
+            this.commentList = data.commentList;
+            //zanok
           });
 
         }
