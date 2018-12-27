@@ -26,7 +26,8 @@ function checkStatus (response) {
     try {
         if(/^(200|304)$/.test(response.status)){
           if(response.data.code === -1){
-            return alert(response.data.message);
+            alert(response.data.message);
+            return null
           }
           return response.data;
         }

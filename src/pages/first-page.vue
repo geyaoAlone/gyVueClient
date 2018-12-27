@@ -5,10 +5,10 @@
       <div class="layui-container">
         <ul class="layui-clear">
           <li class="layui-hide-xs layui-this"><a href="/">最新<span class="layui-badge-dot"></span></a></li>
-          <li><a href="javascript:;">问题</a></li>
-          <li><a href="javascript:;">话题</a></li>
-          <li><a href="javascript:;">分享</a></li>
-          <li><a href="javascript:;">原创</a></li>
+          <li><a href="javascript:;" @click="queryType($event,'question')">问题</a></li>
+          <li><a href="javascript:;" @click="queryType($event,'gambit')">话题</a></li>
+          <li><a href="javascript:;" @click="queryType($event,'share')">分享</a></li>
+          <li><a href="javascript:;" @click="queryType($event,'original')">原创</a></li>
           <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
 
           <!-- 用户登入后显示 -->
@@ -279,12 +279,26 @@
           //url += '&username='+this.userSession.username
           this.$http.get(url).then(result => {
             console.info(result)
-            this.catalogueList = result.catalogueList
+            this.catalogueList = result.data.catalogueList
           });
         },
         authorInfo:function (username) {
           //this.$router.push({path: 'myHomepage',query:{nickname:username}})
           this.$router.push({name: 'my-homepage', params: {username: username}})
+        },
+        queryType:function (e,type) {
+          var dom = $(e.srcElement).parent();
+          if(!dom.hasClass('layui-this')){
+            dom.parent().find('.layui-this').removeClass('layui-this');
+            dom.addClass('layui-this');
+          }
+          this.$http.get(this.queryUrl+'type='+type).then(result => {
+            console.info(result)
+            this.catalogueList = result.data.catalogueList
+            this.stickList = result.data.stickList
+          });
+
+
         }
       },
       mounted() {
@@ -293,7 +307,11 @@
       },
       created() {
         console.info(this.userSession)
-        var url = this.queryUrl+'&orderType=id'
+        var type = this.$route.params.type
+        var url = this.queryUrl+'orderType=id'
+        if(type){
+          url += '&type='+type;
+        }
         this.$http.get(url).then(result => {
           this.catalogueList = result.data.catalogueList
           this.stickList = result.data.stickList
