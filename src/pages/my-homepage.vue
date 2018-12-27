@@ -176,7 +176,7 @@ full: true
   .personal_topBg{
     background: url("http://120.79.240.9:8080/personal_banner.png");
     width: 100%;
-    height: 220px;
+    height: 120px;
     background-size: cover;
     background-position: 50%;
     position: relative;
@@ -186,12 +186,12 @@ full: true
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 65px;
+    height: 60px;
     background: rgba(0,0,0,0.3);
   }
   .personal_topNumber ul{
     width: 40%;
-    height: 65px;
+    height: 60px;
     margin: 0 auto;
     color: #ffffff;
   }
@@ -209,14 +209,14 @@ full: true
   .personal_topNumber ul li i{
     display: block;
     font-size: 20px;
-    padding: 1px 0 4px 0;
+    padding: 1px 0 2px 0;
   }
   .personal_topInfo{
     width: 100%;
   }
   .personal_topInfo img{
-    width: 100px;
-    height: 100px;
+    width: 88px;
+    height: 88px;
     border: 5px solid #ffffff;
     position: relative;
     margin-top: -40px;
