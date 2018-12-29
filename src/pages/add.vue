@@ -64,7 +64,7 @@
                       <textarea id="L_content" v-model="formData.content" name="content"placeholder="详细描述" class="layui-textarea fly-editor" style="height: 260px;"></textarea>
                     </div>
                   </div>
-
+                  {{formData.content}}
                   <!--<div class="layui-form-item">
                     <div class="layui-inline">
                       <label class="layui-form-label">悬赏飞吻</label>
@@ -142,12 +142,11 @@
             _this.$http.post('api/user/saveNewArticle',_this.formData,_this.userSession.token).then(result => {
               var _id = result.data;
               layer.msg('恭喜！添加成功',{time:1000},function(){
-                this.$router.push({path: 'detail',query:{id:_id}})
+                _this.$router.push({path: 'detail',query:{id:_id}})
               })
             })
 
           }
-
         }
       },
       mounted(){

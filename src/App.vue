@@ -31,7 +31,7 @@
             <a class="fly-nav-avatar" href="javascript:;">
               <cite class="layui-hide-xs">{{userSession.nickname}}</cite>
               <i class="iconfont icon-renzheng layui-hide-xs"></i>
-              <img src="http://120.79.240.9:8080/180.jpg">
+              <img :src="userSession.headPortraitUrl">
             </a>
             <dl class="layui-nav-child">
               <dd><a href="javascript:;" @click="myHomepage()"><i class="layui-icon" style="margin-left: 2px; font-size: 22px;">&#xe68e;</i>我的主页</a></dd>

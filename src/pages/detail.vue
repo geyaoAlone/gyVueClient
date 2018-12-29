@@ -33,7 +33,13 @@
 
         <div class="layui-col-md8 content detail">
           <div class="fly-panel detail-box">
-            <h1 class="detail_lableTip"><span class="layui-badge layui-bg-green fly-detail-column">{{detail.typeName}}</span>{{detail.title}}<span class="layui-badge layui-bg-red" v-if="detail.best">精</span></h1>
+            <h1 class="detail_lableTip">
+              <span class="layui-badge fly-detail-column layui-bg-green">{{detail.typeName}}</span>
+              {{detail.title}}
+              <span class="layui-badge layui-bg-red" v-if="detail.best">精</span>
+              <span class="layui-badge layui-bg-green" v-if="detail.stick">顶</span>
+              <span class="layui-badge layui-bg-red" v-if="!detail.publicity">密</span>
+            </h1>
             <div class="fly-detail-info">
               <!-- <span class="layui-badge">审核中</span> -->
 
@@ -46,7 +52,7 @@
 
               <div class="fly-admin-box detail_time_operation" data-id="123">
                 <div class="detail_time">
-                  <a href="javascript:;" class="fly-link">
+                  <a href="javascript:;" class="fly-link" @click="authorInfo(detail.author)">
                     <cite>{{detail.nickName}}</cite>
                     <i class="iconfont icon-renzheng" title=""></i>
                     <!--<i class="layui-badge fly-badge-vip">VIP3</i>-->
@@ -60,14 +66,18 @@
                     <a><i class="iconfont" title="人气">&#xe60b;</i> {{detail.seenTimes}}</a>
                   </span>
 
-                  <div class="detail_dst_operation" v-if='userSession != null'>
-                    <span class="layui-btn layui-btn-xs jie-admin" type="del">删帖</span>
+                  <div class="detail_dst_operation" v-if='userSession != null && userSession.username == detail.author'>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'del',true)">删帖</span>
 
-                    <span class="layui-btn layui-btn-xs jie-admin" type="set" field="stick" rank="1">置顶</span>
-                    <!-- <span class="layui-btn layui-btn-xs jie-admin" type="set" field="stick" rank="0" style="background-color:#ccc;">取消置顶</span> -->
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'stick',true)" v-if="userSession.authorities[0] =='ADMIN' && !detail.stick">置顶</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'stick',false)" v-if="userSession.authorities[0] =='ADMIN' && detail.stick">置顶个屁</span>
 
-                    <span class="layui-btn layui-btn-xs jie-admin" type="set" field="status" rank="1">加精</span>
-                    <!-- <span class="layui-btn layui-btn-xs jie-admin" type="set" field="status" rank="0" style="background-color:#ccc;">取消加精</span> -->
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',true)" v-if="!detail.best">加精</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',false)" v-if="detail.best">加鸡毛精</span>
+
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'publicity',true)" v-if="!detail.publicity">公开</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'publicity',false)" v-if="detail.publicity">藏起来</span>
+
                   </div>
                 </div>
               </div>
@@ -160,7 +170,6 @@
                   <i class="iconfont icon-svgmoban53"></i>回复
                 </span>
                   <div class="jieda-admin" v-if="userSession != null && userSession.username == item.username">
-                    <span type="edit" @click="edit(item.replyContent,item.id)">编辑</span>
                     <span type="del" @click="del(item.id)">删除</span>
                     <!-- <span class="jieda-accept" type="accept">采纳</span> -->
                   </div>
@@ -192,7 +201,7 @@
             <dt class="fly-panel-title">本周热议</dt>
             <dd v-for="(item ,i) in heatData">
               <a href="javascript:;" @click="otherDetail(item.serialNumber)">{{item.title}}</a>
-              <span><i class="iconfont icon-pinglun1"></i> {{item.seenTimes}}</span>
+              <span><i class="iconfont icon-pinglun1"></i> {{item.commentTimes}}</span>
             </dd>
 
 
@@ -242,6 +251,10 @@
               data.detailData.content = fly.content(data.detailData.content)
               this.detail = data.detailData
               this.heatData = data.heatData
+              data.commentList.forEach(comment=>{
+                comment.replyContent = fly.content(comment.replyContent)
+              });
+              this.commentList = data.commentList;
 
             });
           },
@@ -255,7 +268,7 @@
 
           },
           sbReply:function(){
-            console.info(this.userSession)
+
             if(this.userSession){
               var comment = {serialNumber : this.detail.serialNumber,
                                    author : this.userSession.nickname,
@@ -264,13 +277,16 @@
                             authorHeadUrl : this.userSession.headPortraitUrl,
                              thumbUpTimes : 0
               }
-              console.info(comment)
+              var _this = this
               this.$http.post('api/user/saveComment',comment,this.userSession.token).then(result => {
                 result.data.forEach(comment=>{
                   comment.replyContent = fly.content(comment.replyContent)
                 });
                 this.commentList =result.data
-                layer.msg("评论成功",{time:1000})
+                layer.msg("评论成功",{time:1000},function(){
+                  _this.content = ''
+                  _this.detail.commentTimes += 1
+                })
               });
             }else{
               layer.msg("请先登陆",{time:1000})
@@ -304,6 +320,51 @@
             }else{
               layer.msg("请先登陆",{time:1000})
             }
+          },
+          del:function(id){
+            if(this.userSession){
+              let _this = this
+              layer.confirm("确定删除此回帖？",{icon:3},function () {
+                _this.$http.get('/api/user/delComment?id='+id+'&serialNumber='+_this.detail.serialNumber,_this.userSession.token).then(result => {
+                  if(result.data != null){
+                    layer.msg("删除成功",{time:1000})
+                    _this.commentList = result.data
+                    _this.detail.commentTimes -= 1
+                  }
+                })
+              })
+            }else{
+              layer.msg("请先登陆",{time:1000})
+            }
+          },
+          dealThisDetail:function(id,type,value){
+            var _this = this
+            if(this.userSession) {
+              var str = '确定操作？'
+              if('del' == type) {
+                str = '确定删除此帖吗？'
+              }
+              layer.confirm(str,{icon:3},function () {
+                _this.$http.get('/api/user/dealArticle?id=' + id + '&type=' + type + '&val=' + value,_this.userSession.token).then(result => {
+                  if (result.code == 1) {
+                    if('del' == type) {
+                      layer.msg('删除成功',{time:1000},function(){
+                        _this.$router.push({path: '/'})
+                      })
+                    }else{
+                      _this.detail[type] = value
+                      layer.close('confirm')
+                    }
+                  }
+                })
+              });
+            }else{
+              layer.msg("请先登陆", {time: 1000})
+            }
+          },
+          authorInfo:function (username) {
+            //this.$router.push({path: 'myHomepage',query:{nickname:username}})
+            this.$router.push({name: 'my-homepage', params: {username: username}})
           }
         },
         mounted(){
@@ -314,20 +375,20 @@
         },
         created(){
           let _this = this
-          var URL = '/api/lobby/queryConnotationDetail?serialNumber='+this.$route.query.id
-          if(this.userSession){
-            URL +='&username='+this.userSession.username
+          var URL = '/api/lobby/queryConnotationDetail?serialNumber='+_this.$route.query.id
+          if(_this.userSession){
+            URL +='&username='+_this.userSession.username
           }
-          this.$http.get(URL).then(result => {
+          _this.$http.get(URL).then(result => {
             var data = result.data
             console.info(data)
             data.detailData.content = fly.content(data.detailData.content)
-            this.detail = data.detailData
-            this.heatData = data.heatData
+            _this.detail = data.detailData
+            _this.heatData = data.heatData
             data.commentList.forEach(comment=>{
               comment.replyContent = fly.content(comment.replyContent)
             });
-            this.commentList = data.commentList;
+            _this.commentList = data.commentList;
             //zanok
           });
 
@@ -420,9 +481,6 @@
     width: 26px;
     height: 26px;
   }
-
-</style>
-<style>
   .detail-body hr,hr{
     background-color: #ffffff !important;
   }

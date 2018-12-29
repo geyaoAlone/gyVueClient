@@ -176,7 +176,7 @@ full: true
   .personal_topBg{
     background: url("http://120.79.240.9:8080/personal_banner.png");
     width: 100%;
-    height: 120px;
+    height: 60px;
     background-size: cover;
     background-position: 50%;
     position: relative;
