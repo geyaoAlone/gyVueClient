@@ -331,4 +331,9 @@
   .fly-panel-title{
     color: #000000;
   }
+  .layui-col-md8 ul li:hover{
+    /*border: 2px solid #5FB878;*/
+    box-shadow: 0 0 10px rgba(95,184,120,0.3);
+    /*box-shadow: 0 0 10px rgba(1,170,237,0.6);*/
+  }
 </style>

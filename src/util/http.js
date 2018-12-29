@@ -3,7 +3,7 @@
 import axios from 'axios'
 //import { Indicator } from 'mint-ui';
 
-const BASE_URL = 'http://localhost:9500'//'http://39.108.221.60:9500';
+const BASE_URL = 'http://10.10.10.141:9500' //'http://39.108.221.60:9500'// 'http://localhost:9500';
 
 axios.interceptors.request.use(config => {
     // loading opend
