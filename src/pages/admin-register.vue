@@ -59,7 +59,7 @@
                   <div class="layui-input-inline">
                     <input type="text" id="L_vercode" name="vercode" placeholder="请回答后面的问题" @click="takecheckimg()" v-model="registerInfo.vercode" class="layui-input">
                   </div>
-                  <div class="layui-form-mid">
+                  <div class="layui-form-mid login_img">
                     <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
                   </div>
                 </div>

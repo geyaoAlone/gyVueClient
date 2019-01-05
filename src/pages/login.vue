@@ -29,7 +29,7 @@
                     <div class="layui-input-inline">
                       <input type="text" v-model="loginInfo.identifyCode" @click="takecheckimg()" id="L_vercode" name="vercode" placeholder="请写出后面的答案" class="layui-input">
                     </div>
-                    <div class="">
+                    <div class="login_img">
                       <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
                     </div>
                   </div>

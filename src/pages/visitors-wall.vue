@@ -25,12 +25,35 @@
     <div class="layui-row">
       <div class="layui-col-xs12 message_chunk" v-for="(item ,i) in guestReplyList" :key="i">
         <div class="message_interior">
-          时间：{{item.createTime}}<br>
-          内容：{{item.content}}<br>
-          邮箱：{{item.email}}<br>
-          会员：{{item.username}}<br>
-          状态：{{item.dealStatus}}<br>
-          <a href="javascript:;" @click="sign(item.id)">标记为已处理</a>
+          <ul class="">
+            <!--时间：{{item.createTime}}<br>-->
+            <!--内容：{{item.content}}<br>-->
+            <!--邮箱：{{item.email}}<br>-->
+            <!--会员：{{item.username}}<br>-->
+            <!--状态：{{item.dealStatus}}<br>-->
+            <li>
+              <i class="layui-icon layui-icon-date"></i>
+              <p>{{item.createTime}}</p>
+            </li>
+            <li>
+              <i class="layui-icon layui-icon-fonts-code"></i>
+              <p>{{item.content}}</p>
+            </li>
+            <li>
+              <i class="layui-icon layui-icon-user"></i>
+              <p>{{item.email}}</p>
+            </li>
+            <li>
+              <i class="layui-icon layui-icon-user"></i>
+              <p>{{item.username}}</p>
+            </li>
+          </ul>
+          <div class="visi_but">
+            <a href="javascript:;" @click="sign(item.id)">标记为已处理</a>
+          </div>
+          <div class="visi_img">
+            <i class="layui-icon layui-icon-tips"></i>
+          </div>
         </div>
       </div>
     </div>
@@ -104,5 +127,48 @@
   .message_interior{
     padding: 10px;
     background: #fff;
+  }
+  .message_interior{
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    line-height: 24px;
+    position: relative;
+  }
+  .message_interior ul li{
+    height: 30px;
+  }
+  .message_interior ul li i{
+    float: left;
+    /*width: 1%;*/
+    line-height: 30px;
+    margin-right: 10px;
+  }
+  .message_interior ul li p{
+    float: left;
+    font-size: 16px;
+    width: 90%;
+    line-height: 30px;
+  }
+  .message_interior a{
+    background: #009688;
+    padding: 3px 10px;
+    color: #FFFFFF;
+    float: right;
+    border-radius: 2px;
+    font-size: 12px;
+  }
+  .visi_but{
+    width: 100%;
+    height: 40px;
+  }
+  .visi_img{
+    position: absolute;
+    right: 16px;
+    top: 16px;
+  }
+  .visi_img i{
+    font-size: 80px;
+    line-height: 60px;
   }
 </style>

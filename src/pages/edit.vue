@@ -39,7 +39,7 @@
                     </div>
                   </div>
 
-                  <div class="layui-form-item">
+                  <div class="layui-form-item login_img">
                     <label for="L_vercode" class="layui-form-label">人类验证</label>
                     <div class="layui-input-inline">
                       <input type="text" id="L_vercode" v-model="article.vercode" name="vercode" placeholder="请回答后面的问题" autocomplete="off" class="layui-input">
