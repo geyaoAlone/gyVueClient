@@ -22,7 +22,18 @@
         </div>
       </div>
     </div>
-    <h1>暂无功能！等待开发</h1>
+    <div class="layui-row">
+      <div class="layui-col-xs12 message_chunk" v-for="(item ,i) in guestReplyList" :key="i">
+        <div class="message_interior">
+          时间：{{item.createTime}}<br>
+          内容：{{item.content}}<br>
+          邮箱：{{item.email}}<br>
+          会员：{{item.username}}<br>
+          状态：{{item.dealStatus}}<br>
+          <a href="javascript:;" @click="sign(item.id)">标记为已处理</a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -31,7 +42,8 @@
         name: "visitors-wall",
       data:function () {
         return{
-          userInfo:{}
+          userInfo:{},
+          guestReplyList:{}
         }
       },
       methods:{
@@ -50,14 +62,47 @@
         myCollection:function(){
           this.$router.push({path: 'myCollection'})
         },
+        sign:function(id){
+          var _this = this
+          _this.$http.post("api/user/updateGuestReplyStatus",{username:_this.userInfo.username,id:id},_this.userInfo.token).then(result => {
+            if(result){
+              if(result.code == 1 && result.data.modifiedCountAvailable){
+                layer.msg('标记成功',{time:1000},function () {
+                  window.location.reload()
+                })
+              }
+            }
+          })
+        }
       },
       created(){
-        this.userInfo = this.$store.state.session;
+        var _this = this
+        _this.userInfo = _this.$store.state.session;
+        _this.$http.get("api/user/queryGuestReply?username="+_this.userInfo.username,_this.userInfo.token).then(result => {
+          if(result){
+            if(result.code == 1){
+              _this.guestReplyList = result.data
+            }else{
+              layer.msg(result.message,{time:1500},function () {
+                _this.$router.push({path:'/'})
+              })
+            }
+          }
+
+
+        })
+
       }
 
     }
 </script>
 
 <style scoped>
-
+  .message_chunk{
+    padding: 7px;
+  }
+  .message_interior{
+    padding: 10px;
+    background: #fff;
+  }
 </style>
