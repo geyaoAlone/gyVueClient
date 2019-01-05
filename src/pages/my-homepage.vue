@@ -33,32 +33,39 @@
 
     <!--</div>-->
     <!--老版结束-->
-    <div class="fly-panel fly-column small-title" v-if="!isVisitor">
-      <div class="layui-container">
-        <ul class="layui-clear">
-          <li class="layui-hide-xs layui-this"><a href="javascript:;" @click="homePage()">我的主页</a></li>
-          <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
-          <li><a href="javascript:;" @click="myInfo()">我的信息</a></li>
-          <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
-          <li><a href="javascript:;" @click="myCollection()">我的收藏</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员管理</a></li>
-        </ul>
 
-        <div v-if='userInfo != null' class="fly-column-right layui-hide-xs">
-          <!--<span class="fly-search"><i class="layui-icon"></i></span>-->
-          <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
-        </div>
-        <div v-if='userInfo != null' class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
-          <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
-        </div>
-      </div>
-    </div>
     <!--新版开始-->
-    <div class="fly-home fly-panel personal_top">
+    <div class="fly-home fly-panel fly-home1">
+
+
 
       <div class="personal_topBg">
+
+
+        <div class="fly-column small-title personal_top" v-if="!isVisitor">
+          <div class="layui-container layui-container1">
+            <ul class="layui-clear homepage_top">
+              <li class="layui-hide-xs layui-this"><a href="javascript:;" @click="homePage()">我的主页</a></li>
+              <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
+              <li><a href="javascript:;" @click="myInfo()">我的信息</a></li>
+              <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
+              <li><a href="javascript:;" @click="myCollection()">我的收藏</a></li>
+              <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
+              <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
+              <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员管理</a></li>
+            </ul>
+
+            <div v-if='userInfo != null' class="fly-column-right layui-hide-xs">
+              <!--<span class="fly-search"><i class="layui-icon"></i></span>-->
+              <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
+            </div>
+            <div v-if='userInfo != null' class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
+              <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
+            </div>
+          </div>
+        </div>
+
+
         <div class="personal_topNumber">
           <ul>
           <li>
@@ -216,10 +223,13 @@
   .personal_top{
     padding: 0;
   }
+  .fly-home1{
+    padding: 0 !important;
+  }
   .personal_topBg{
     background: url("http://120.79.240.9:8080/personal_banner.png");
     width: 100%;
-    height: 60px;
+    height: 120px;
     background-size: cover;
     background-position: 50%;
     position: relative;
@@ -307,5 +317,18 @@
   }
   .myHome_articleTitle em{
     max-width: 16%;
+  }
+  .personal_top{
+    padding: 0;
+    padding-top: 4px;
+  }
+  .homepage_top li a{
+    color: #ffffff;
+  }
+  .layui-container1{
+    height: 50px;
+  }
+  .homepage_top{
+    float: left;
   }
 </style>

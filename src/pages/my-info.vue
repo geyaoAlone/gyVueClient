@@ -22,7 +22,7 @@
         </div>
       </div>
     </div>
-    <div class="fly-panel fly-panel-user" pad20>
+    <div class="fly-panel fly-panel-user myInfo_box" pad20>
       <div class="layui-tab layui-tab-brief" lay-filter="user">
         <ul class="layui-tab-title" id="LAY_mine">
           <li class="layui-this" lay-id="info">我的资料</li>
@@ -33,7 +33,7 @@
         <div class="layui-tab-content" style="padding: 20px 0;">
 
           <div class="layui-form layui-form-pane layui-tab-item layui-show" lay-filter="modify">
-            <div class="layui-form-item">
+            <div class="layui-form-item info_personalBox">
               <label class="layui-form-label">用户名</label>
               <div class="layui-input-inline">
                 <span>{{userInfo.username}}</span>
@@ -43,6 +43,8 @@
               <label for="L_username" class="layui-form-label">昵称</label>
               <div class="layui-input-inline">
                 <input v-model="modifyInfo.nickname" type="text" id="L_username" name="username" value="" class="layui-input">
+              </div>
+              <div class="info_role">
                 <span v-if="userInfo.authorities[0] =='USER'">(小站会员)</span>
                 <span v-if="userInfo.authorities[0] =='ADMIN'">(小站管理员)</span>
               </div>
@@ -50,8 +52,12 @@
             <div class="layui-form-item">
               <label class="layui-form-label">性别</label>
               <div class="layui-input-inline">
-                <input type="radio" name="sex" value="1" title="男" lay-filter="sex">
-                <input type="radio" name="sex" value="2" title="女" lay-filter="sex">
+                <!--<input type="radio" name="sex" value="1" title="男" lay-filter="sex">-->
+                <!--<input type="radio" name="sex" value="2" title="女" lay-filter="sex">-->
+                <select>
+                  <option name="sex" lay-filter="sex">男</option>
+                  <option name="sex" lay-filter="sex">女</option>
+                </select>
               </div>
             </div>
             <div class="layui-form-item">
@@ -59,7 +65,7 @@
               <div class="layui-input-inline">
                 <input v-model="modifyInfo.email" type="text" id="L_email" name="email" class="layui-input">
               </div>
-              <div class="layui-form-mid layui-word-aux">如果您在邮箱已激活的情况下，变更了邮箱，需<a href="javascript:;" style="font-size: 12px; color: #4f99cf;">重新验证邮箱</a>。</div>
+              <div class="layui-form-mid layui-word-aux">如果您在邮箱已激活的情况下，变更了邮箱，需 <a href="javascript:;" style="color: #4f99cf;">重新验证邮箱</a>。</div>
             </div>
             <div class="layui-form-item">
               <label for="L_city" class="layui-form-label">城市</label>
@@ -78,17 +84,18 @@
             </div>
           </div>
 
-          <div class="layui-form layui-form-pane layui-tab-item">
+          <div class="layui-form layui-form-pane layui-tab-item info_photoBox">
             <div class="layui-form-item">
               <div class="avatar-add">
+
+                <img :src="userInfo.headPortraitUrl" id="showImg" />
+                <!--<span class="loading"></span>-->
                 <!--<p>建议尺寸168*168，支持jpg、png、gif，最大不能超过50KB</p>-->
                 <p>温馨提示：暂不支持上传头像，请点击"选择头像"选择系统头像，上传功能后续开通</p>
                 <button type="button" class="layui-btn upload-img" @click="openSelectImg()">
                  <!-- <i class="layui-icon">&#xe67c;</i>上传头像-->
                   选择头像
                 </button>
-                <img :src="userInfo.headPortraitUrl" id="showImg">
-                <span class="loading"></span>
               </div>
             </div>
           </div>
@@ -276,32 +283,33 @@
           }
         },
         openSelectImg:function () {
-          var html = '  <div class="layui-row"> ' +
-                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4"> ' +
+          var html = '  <div class="layui-row info_photo"> ' +
+                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect"> ' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/1.jpg"></a>   ' +
                      '    </div> ' +
-                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4">' +
+                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect">' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/2.jpg"></a>' +
                      '    </div>' +
-                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4">' +
+                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect">' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/3.jpg"></a>' +
                      '    </div>' +
-                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4"> ' +
+                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect"> ' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/4.jpg"></a>   ' +
                      '    </div> ' +
-                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4">' +
+                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect">' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/5.jpg"></a>' +
                      '    </div>' +
-                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4">' +
+                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect">' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/6.jpg"></a>' +
+                     '      <div class="info_test"><i class="layui-icon layui-icon-ok"></i></div>' +
                      '    </div>' +
-                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4"> ' +
+                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect"> ' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/7.jpg"></a>   ' +
                      '    </div> ' +
-                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4">' +
+                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect">' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/8.jpg"></a>' +
                      '    </div>' +
-                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4">' +
+                     '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect">' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/9.jpg"></a>' +
                      '    </div>' +
                      '  </div>'
@@ -386,5 +394,60 @@
   .layui-col-md4 a img{
     margin: 2px 2px 2px 3px;
     max-height: 125px;
+  }
+  .myInfo_box{
+    width: 80%;
+    margin: 0 auto;
+  }
+  .info_personalBox .layui-input-inline span{
+    display: block;
+    border: 1px solid #e6e6e6;
+    padding: 8px 15px;
+    line-height: 20px;
+    border-width: 1px;
+    background: #efefef;
+  }
+  .info_role span{
+    display: block;
+    padding: 8px 15px;
+    line-height: 20px;
+    border-width: 1px;
+  }
+  .info_photoBox .layui-form-item{
+    margin: 0 auto;
+  }
+  .info_photoBox .layui-form-item .avatar-add{
+    width: auto;
+    background: #ffffff;
+  }
+  .info_photo{
+    padding: 14px;
+  }
+  .info_photo .layui-col-xs6 a{
+    display: block;
+  }
+  .info_photo .layui-col-xs6 a img{
+    margin: 4px;
+    width: 116px;
+    height: 116px;
+  }
+  .info_photoSelect{
+    position: relative;
+  }
+  .info_photoSelect .info_test{
+    width: 116px;
+    height: 116px;
+    background: rgba(0,0,0,0.5);
+    position: absolute;
+    top: 4px;
+    left: 4px;
+  }
+  .info_photoSelect .info_test i{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-size: 40px;
   }
 </style>
