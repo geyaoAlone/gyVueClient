@@ -14,14 +14,14 @@
             <a href="#/updateLog"><i class="iconfont icon-ui"></i>小站更新</a>
           </li>
           <li class="layui-nav-item">
-            <a href="#/visitors-wall"><i class="iconfont icon-ui"></i>小站留言</a>
+            <a href="#/visitors-leave"><i class="iconfont icon-ui"></i>小站留言</a>
           </li>
         </ul>
 
         <ul class="layui-nav fly-nav-user">
           <!-- 未登入的状态 -->
           <li class="layui-nav-item" v-if='userSession == null'>
-            <a class="iconfont icon-touxiang layui-hide-xs" href="user/login.html"></a>
+            <a class="iconfont icon-touxiang layui-hide-xs" href="javascript:;" @click="goLogin()"></a>
           </li>
           <li class="layui-nav-item" v-if='userSession == null'>
             <a href="javascript:;" @click="goLogin()">登入</a>
@@ -47,7 +47,7 @@
 
     <router-view/>
     <div class="fly-footer">
-      <p><a href="http://fly.layui.com/" target="_blank">网站的名字</a> 2018 &copy; <a href="http://www.layui.com/" target="_blank">geyaoln.xin 出品</a></p>
+      <p><a href="http://www.geyaoln.xin/" target="_blank">葛耀的小站</a> 2018 &copy; <a href="http://www.geyaoln.xin/" target="_blank">geyaoln.xin 出品</a></p>
       <p>
         感谢Layui
         感谢大官人

@@ -66,18 +66,19 @@
                     <a><i class="iconfont" title="人气">&#xe60b;</i> {{detail.seenTimes}}</a>
                   </span>
 
-                  <div class="detail_dst_operation" v-if='userSession != null && userSession.username == detail.author'>
-                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'del',true)">删帖</span>
+                  <div class="detail_dst_operation" v-if="userSession != null">
+                    <span v-if="userSession.username == detail.author" class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'del',true)">删帖</span>
 
                     <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'stick',true)" v-if="userSession.authorities[0] =='ADMIN' && !detail.stick">置顶</span>
                     <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'stick',false)" v-if="userSession.authorities[0] =='ADMIN' && detail.stick">置顶个屁</span>
 
-                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',true)" v-if="!detail.best">加精</span>
-                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',false)" v-if="detail.best">加鸡毛精</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',true)" v-if="userSession.authorities[0] =='ADMIN' && !detail.best">加精</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',false)" v-if="userSession.authorities[0] =='ADMIN' && detail.best">加鸡毛精</span>
 
-                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'publicity',true)" v-if="!detail.publicity">公开</span>
-                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'publicity',false)" v-if="detail.publicity">藏起来</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'publicity',true)" v-if="userSession.username == detail.author && !detail.publicity">公开</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'publicity',false)" v-if="userSession.username == detail.author && detail.publicity">藏起来</span>
 
+                    <span v-if="userSession.username == detail.author" class="layui-btn layui-btn-xs jie-admin" @click="editThisDetail(detail.serialNumber)">修改</span>
                   </div>
                 </div>
               </div>
@@ -244,6 +245,9 @@
           }
         },
         methods:{
+          add:function(){
+            this.$router.push({path: 'add'})
+          },
           otherDetail:function(id){
             this.$http.get('/api/lobby/queryConnotationDetail?serialNumber='+id).then(result => {
               console.info(result)
@@ -365,6 +369,9 @@
           authorInfo:function (username) {
             //this.$router.push({path: 'myHomepage',query:{nickname:username}})
             this.$router.push({name: 'my-homepage', params: {username: username}})
+          },
+          editThisDetail:function (id) {
+            this.$router.push({path: 'edit',query:{id:id}})
           }
         },
         mounted(){

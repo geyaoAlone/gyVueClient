@@ -33,20 +33,41 @@
 
     <!--</div>-->
     <!--老版结束-->
+    <div class="fly-panel fly-column small-title" v-if="!isVisitor">
+      <div class="layui-container">
+        <ul class="layui-clear">
+          <li class="layui-hide-xs layui-this"><a href="javascript:;" @click="homePage()">我的主页</a></li>
+          <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
+          <li><a href="javascript:;" @click="myInfo()">我的信息</a></li>
+          <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
+          <li><a href="javascript:;" @click="myCollection()">我的收藏</a></li>
+          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
+          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
+          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员管理</a></li>
+        </ul>
 
+        <div v-if='userInfo != null' class="fly-column-right layui-hide-xs">
+          <!--<span class="fly-search"><i class="layui-icon"></i></span>-->
+          <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
+        </div>
+        <div v-if='userInfo != null' class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
+          <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
+        </div>
+      </div>
+    </div>
     <!--新版开始-->
     <div class="fly-home fly-panel personal_top">
 
       <div class="personal_topBg">
         <div class="personal_topNumber">
           <ul>
-            <li>
-              <i>1081</i>总阅读
-            </li>
-            <li>
-              <i>1081</i>总阅读
-            </li>
-          </ul>
+          <li>
+            <i>{{countByAuthor.zongshu}}</i>发帖量
+          </li>
+          <li>
+            <i>{{ownCommentInfoList.length}}</i>回帖量
+          </li>
+        </ul>
         </div>
       </div>
 
@@ -77,7 +98,7 @@
       <div class="layui-row layui-col-space15">
         <div class="layui-col-md6 fly-home-jie">
           <div class="fly-panel myHome_conTitle">
-            <h3 class="fly-panel-title"><i class="layui-icon layui-icon-read"></i>贤心 最近的发帖</h3>
+            <h3 class="fly-panel-title"><i class="layui-icon layui-icon-read"></i>{{userInfo.nickname}} 最近的发帖</h3>
             <ul class="jie-row">
               <li v-for="(item ,i) in ownCatalogue" :key="i" class="myHome_articleTitle">
                 <!--<span class="fly-jing" v-if="item.best">精</span>-->
@@ -95,32 +116,16 @@
 
         <div class="layui-col-md6 fly-home-da">
           <div class="fly-panel myHome_conTitle">
-            <h3 class="fly-panel-title"><i class="layui-icon layui-icon-survey"></i>贤心 最近的回答</h3>
+            <h3 class="fly-panel-title"><i class="layui-icon layui-icon-survey"></i>{{userInfo.nickname}} 最近的回答</h3>
             <ul class="home-jieda">
-              <li>
+              <li v-for="comment in ownCommentInfoList">
                 <p>
-                  <span>1分钟前</span>
-                  在<a href="" target="_blank">tips能同时渲染多个吗?</a>中回答：
+                  <span>{{comment.createTime}}</span>
+                  在<a href="javascript:;" @click="getDetail(comment.serialNumber)">{{comment.title}}</a>中回答：
                 </p>
-                <div class="home-dacontent">
-                  尝试给layer.photos加上这个属性试试：
-                  <pre>
-full: true
-</pre>
-                  文档没有提及
-                </div>
+                <div class="home-dacontent" v-html="comment.replyContent"></div>
               </li>
-              <li>
-                <p>
-                  <span>5分钟前</span>
-                  在<a href="" target="_blank">在Fly社区用的是什么系统啊?</a>中回答：
-                </p>
-                <div class="home-dacontent">
-                  Fly社区采用的是NodeJS。分享出来的只是前端模版
-                </div>
-              </li>
-
-              <!-- <div class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><span>没有回答任何问题</span></div> -->
+              <div v-if="ownCommentInfoList ==[]" class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><span>没有回答任何问题</span></div>
             </ul>
           </div>
         </div>
@@ -130,46 +135,85 @@ full: true
 </template>
 
 <script>
+    import {fly} from '../util/editUtil.js';
     export default {
         name: "my-homepage",
         data:function(){
           return{
+            isVisitor:true,
             userInfo:{},
-            ownCatalogue:[]
+            ownCatalogue:[],
+            ownCommentInfoList:[],
+            countByAuthor:{zongshu:0}
+          }
+        },
+        methods:{
+          add:function(){
+            this.$router.push({path: 'add'})
+          },
+          getDetail:function(id){
+            this.$router.push({path: 'detail',query:{id:id}})
+          },homePage:function(){
+            this.$router.push({path: 'myHomepage'})
+          },myInfo:function(){
+            this.$router.push({path: 'myInfo'})
+          },myMessage:function(){
+            this.$router.push({path: 'myMessage'})
+          },myCollection:function(){
+            this.$router.push({path: 'myMessage'})
           }
         },
         created(){
-          var username = this.$route.params.username
-          var _this = this
-          var url = "/api/lobby/getOwnCatalogue?"
+          var _this = this,
+              username = _this.$route.params.username,
+              url = "/api/lobby/getOwnCatalogue?",
+              visitorSession = _this.$store.state.session
+          console.info(username)
+          console.info(visitorSession)
+          //错误进入
+          if(!username && !visitorSession){
+            _this.$router.push({path: 'firstPage'})
+          }
 
-          if(username){
+          //访客进入
+          if(username && (!visitorSession || username != visitorSession.username)){
             url+="username="+username
-          }else{
-            _this.userInfo = _this.$store.state.session;
-            if(!_this.userInfo){
-              _this.$router.push({path: 'firstPage'})
-            }
+          }
+
+          //自己进入自己主页
+          if((!username && visitorSession)
+              ||(username == visitorSession.username)){
+            this.isVisitor = false
+            _this.userInfo = visitorSession;
             var username = this.userInfo.username
             url+="username="+username
           }
 
-          this.$http.get(url).then(result => {
+          _this.$http.get(url).then(result => {
             if(result != null){
-              this.ownCatalogue = result.data.ownCatalogue
-              this.userInfo = result.data.user
+              _this.ownCatalogue = result.data.ownCatalogue
+              _this.userInfo = result.data.user
+              if(result.data.countByAuthor){
+                _this.countByAuthor = result.data.countByAuthor
+              }
+
+              var list = result.data.ownCommentInfoList
+              list.forEach(comment=>{
+                var content = fly.content(comment.replyContent)
+                comment.replyContent = content
+              })
+              _this.ownCommentInfoList = list
             }
 
           });
-
-
-
         }
     }
 </script>
 
 <style scoped>
-
+  .small-title{
+    margin-bottom: 0px;
+  }
   .personal_top{
     padding: 0;
   }
@@ -241,7 +285,7 @@ full: true
     padding-bottom: 30px;
     color: #6666666;
     font-size: 14px;
-    margin-top: 18px;
+    /*margin-top: 18px;*/
   }
   .myHome_conTitle h3{
     font-size: 16px;

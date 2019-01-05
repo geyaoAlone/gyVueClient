@@ -64,7 +64,7 @@
                       <textarea id="L_content" v-model="formData.content" name="content"placeholder="详细描述" class="layui-textarea fly-editor" style="height: 260px;"></textarea>
                     </div>
                   </div>
-                  {{formData.content}}
+                  <!--{{formData.content}}-->
                   <!--<div class="layui-form-item">
                     <div class="layui-inline">
                       <label class="layui-form-label">悬赏飞吻</label>

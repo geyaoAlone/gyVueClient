@@ -5,10 +5,15 @@ import Login from '../pages/login'
 import UpdateLog from '../pages/web-update-log'
 import Add from '../pages/add'
 import Detail from '../pages/detail'
-import VisitorsWall from '../pages/visitors-wall'
+import VisitorLeave from '../pages/visitors-leave'
 import MyHomepage from '../pages/my-homepage'
 import MyInfo from '../pages/my-info'
 import MyMessage from '../pages/my-message'
+import Edit from '../pages/edit'
+import MyCollection from '../pages/my-collection'
+import AddWebUpdate from '../pages/add-web-update'
+import AdminRegister from '../pages/admin-register'
+import VisitorsWall from '../pages/visitors-wall'
 Vue.use(Router)
 
 export default new Router({
@@ -39,9 +44,9 @@ export default new Router({
       name: 'detail',
       component: Detail
     },{
-      path: '/visitors-wall',
-      name: 'visitors-wall',
-      component: VisitorsWall
+      path: '/visitors-leave',
+      name: 'visitors-leave',
+      component: VisitorLeave
     },{
       path: '/myHomepage',
       name: 'my-homepage',
@@ -54,6 +59,27 @@ export default new Router({
       path: '/myMessage',
       name: 'my-message',
       component: MyMessage
+    },{
+      path:'/edit',
+      name: 'edit',
+      component: Edit
+    },{
+      path: '/myCollection',
+      name: 'my-collection',
+      component: MyCollection
+    },{
+      path: '/addWebUpdate',
+      name: 'add-web-update',
+      component: AddWebUpdate
+    },{
+      path: '/adminRegister',
+      name: 'admin-register',
+      component: AdminRegister
+    },{
+      path: '/visitorsWall',
+      name: 'visitors-wall',
+      component: VisitorsWall
     }
+
   ]
 })

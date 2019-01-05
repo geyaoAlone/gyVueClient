@@ -13,7 +13,7 @@
 
           <!-- 用户登入后显示 -->
           <li v-if='userSession != null' class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="user/index.html">我的发表</a></li>
-          <li v-if='userSession != null' class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="user/index.html#collection">我的收藏</a></li>
+          <li v-if='userSession != null' class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="javascript:;" @click="myCollection()">我的收藏</a></li>
         </ul>
 
         <div v-if='userSession != null' class="fly-column-right layui-hide-xs">
@@ -114,11 +114,10 @@
                   <span class="layui-badge layui-bg-red">精帖</span>
                 </div>
               </li>
-
             </ul>
             <div style="text-align: center">
               <div class="laypage-main">
-                <a href="jie/index.html" class="laypage-next">更多求解</a>
+                <a href="javascript:;" class="laypage-next" @click="moreData()" v-show="catalogueList.length > 14">查看更多</a>
               </div>
             </div>
 
@@ -169,24 +168,22 @@
             <h3 class="fly-panel-title">发帖榜</h3>
             <dl>
               <!--<i class="layui-icon fly-loading">&#xe63d;</i>-->
-              <dd>
-                <a href="user/home.html">
-                  <img src="http://120.79.240.9:8080/180.jpg"><cite>大官人</cite><i>106次回答</i>
+              <dd v-for="(item ,i) in countByAuthor" :key="i">
+                <a href="javascript:;" @click="authorInfo(item.username)">
+                  <img :src="item.head_portrait_url"><cite>{{item.nickname}}</cite><i>{{item.zongshu}}次发帖</i>
                 </a>
               </dd>
             </dl>
           </div>
 
-          <dl class="fly-panel fly-list-one">
+          <!--<dl class="fly-panel fly-list-one">
             <dt class="fly-panel-title">热门帖</dt>
-            <!--<dd>
+            <dd>
               <a href="jie/detail.html">基于 layui 的极简社区页面模版</a>
               <span><i class="iconfont icon-pinglun1"></i> 16</span>
-            </dd>-->
-
-            <!-- 无数据时 -->
+            </dd>
             <div class="fly-none">没有相关数据</div>
-          </dl>
+          </dl>-->
 
           <!--<div class="fly-panel">
             <div class="fly-panel-title">
@@ -224,11 +221,15 @@
           queryUrl:"/api/lobby/queryCatalogueList?",
           catalogueList:[],
           stickList:[],
-          queryParams:{isEnd:'',orderType:'id',isbest:''}
-
+          queryParams:{isEnd:'',orderType:'id',isbest:''},
+          countByAuthor:[],
+          type:''
         }
       },
       methods:{
+        myCollection:function(){
+          this.$router.push({path: 'myCollection'})
+        },
         add:function(){
           this.$router.push({path: 'add'})
         },
@@ -292,13 +293,33 @@
             dom.parent().find('.layui-this').removeClass('layui-this');
             dom.addClass('layui-this');
           }
+          this.type = type
           this.$http.get(this.queryUrl+'type='+type).then(result => {
             console.info(result)
             this.catalogueList = result.data.catalogueList
             this.stickList = result.data.stickList
           });
-
-
+        },
+        moreData:function () {
+          var url = this.queryUrl+'stick=0&orderType='+this.queryParams.orderType
+          if(this.queryParams.isEnd){
+            url += '&status='+this.queryParams.isEnd
+          }
+          if(this.queryParams.isbest){
+            url += '&best='+this.queryParams.isbest
+          }
+          if(this.type){
+            url += '&type'+this.type
+          }
+          var start = this.catalogueList.length + 1
+          var end = this.catalogueList.length + 15
+          var queryCountStr = start+','+end
+          this.$http.get(url+"&queryCountStr="+queryCountStr).then(result => {
+            this.catalogueList = this.catalogueList.concat(result.data.catalogueList)
+            if(result.data.catalogueList.length < 15){
+              $('.laypage-next').hide()
+            }
+          })
         }
       },
       mounted() {
@@ -315,6 +336,7 @@
         this.$http.get(url).then(result => {
           this.catalogueList = result.data.catalogueList
           this.stickList = result.data.stickList
+          this.countByAuthor = result.data.countByAuthor
         });
 
       }
