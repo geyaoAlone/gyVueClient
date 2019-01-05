@@ -168,26 +168,25 @@
               username = _this.$route.params.username,
               url = "/api/lobby/getOwnCatalogue?",
               visitorSession = _this.$store.state.session
-          console.info(username)
-          console.info(visitorSession)
-          //错误进入
-          if(!username && !visitorSession){
-            _this.$router.push({path: 'firstPage'})
-          }
 
           //访客进入
-          if(username && (!visitorSession || username != visitorSession.username)){
+          if(username){
+            if(visitorSession && username == visitorSession.username){
+              this.isVisitor = false
+            }
             url+="username="+username
-          }
-
-          //自己进入自己主页
-          if((!username && visitorSession)
-              ||(username == visitorSession.username)){
+          }else{
+            //错误进入
+            if(!visitorSession){
+              _this.$router.push({path: 'firstPage'})
+            }
+            //自己进入自己主页
             this.isVisitor = false
             _this.userInfo = visitorSession;
             var username = this.userInfo.username
             url+="username="+username
           }
+
 
           _this.$http.get(url).then(result => {
             if(result != null){
