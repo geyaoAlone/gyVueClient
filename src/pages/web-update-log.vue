@@ -7,17 +7,13 @@
     <li class="layui-timeline-item" v-for="(item ,i) in data" :key="i">
       <i class="layui-icon layui-timeline-axis"></i>
       <div class="layui-timeline-content layui-text">
-        <h3 class="layui-timeline-title">{{item.version}}<span>（{{item.updateDate}}）</span></h3>
+        <h3 class="layui-timeline-title">{{item.updateDate}}</h3>
+        <p><span>v.&nbsp;{{item.version}}</span></p>
         <p v-html="item.updateContent"></p>
         <div class="update_label">
-          <span class="update_label1">#<i>vue</i></span>
-          <span class="update_label7">#<i>layer</i></span>
-          <span class="update_label3">#<i>ionic</i></span>
-          <span class="update_label5">#<i>bootstrap</i></span>
-          <span class="update_label9">#<i>vue</i></span>
-          <span class="update_label6">#<i>vue</i></span>
-          <span class="update_label4">#<i>vue</i></span>
-          <span class="update_label8">#<i>vue</i></span>
+          <span :class="'update_label'+i" v-for="(c ,i) in item.technology">
+            #<i>{{c}}</i>
+          </span>
         </div>
       </div>
     </li>
@@ -26,6 +22,7 @@
 </template>
 
 <script>
+  import {fly} from '../util/editUtil.js';
     export default {
         name: "web-update-log",
         data: function() {
@@ -35,7 +32,18 @@
         },
         created(){
           this.$http.get('/api/gateway/queryUpdateBlogs').then(result => {
-            this.data= result.data;
+            if(result && result.data){
+              result.data.forEach(content=>{
+                var technologyStr = content.technology
+                var technology = []
+                if(technologyStr){
+                  technology = technologyStr.split('；')
+                  content.updateContent = fly.content(content.updateContent)
+                }
+                content.technology = technology
+              })
+              this.data= result.data;
+            }
 
           })
         }

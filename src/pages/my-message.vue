@@ -9,7 +9,7 @@
           <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
           <li ><a href="javascript:;" @click="myInfo()">我的信息</a></li>
           <li class="layui-this"><a href="javascript:;" @click="myMessage()">我的消息</a></li>
-          <li><a href="javascript:;" @click="myCollection()">我的收藏</a></li>
+          <li><a href="javascript:;" @click="myPosting()">我的帖子</a></li>
           <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
           <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
           <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
@@ -75,6 +75,9 @@
           myCollection:function(){
             this.$router.push({path: 'myCollection'})
           },
+          myPosting:function(){
+            this.$router.push({path: 'myPosting'})
+          }
         },
         created(){
           this.userInfo = this.$store.state.session;

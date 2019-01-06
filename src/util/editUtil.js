@@ -12,9 +12,10 @@ var focusInsert = function(obj, str){
   } else {
     result = [val.substring(0, obj.selectionStart), str, val.substr(obj.selectionEnd)];
     var text = result.join('');
+    console.info(_this)
     _this.formData.content = text;
     obj.focus();
-    //obj.value = _this.formData.content
+    obj.value = _this.formData.content
 
   }
 };

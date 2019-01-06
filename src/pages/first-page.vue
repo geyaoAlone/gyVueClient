@@ -12,7 +12,7 @@
           <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
 
           <!-- 用户登入后显示 -->
-          <li v-if='userSession != null' class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="user/index.html">我的发表</a></li>
+          <li v-if='userSession != null' class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="javascript:;" @click="myPosting()">我的发表</a></li>
           <li v-if='userSession != null' class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="javascript:;" @click="myCollection()">我的收藏</a></li>
         </ul>
 
@@ -32,7 +32,7 @@
           <div class="fly-panel">
             <div class="fly-panel-title fly-filter">
               <h3>置顶</h3>
-              <a href="#signin" class="layui-hide-sm layui-show-xs-block fly-right" id="LAY_goSignin" style="color: #FF5722;">去签到</a>
+              <!--<a href="#signin" class="layui-hide-sm layui-show-xs-block fly-right" id="LAY_goSignin" style="color: #FF5722;">去签到</a>-->
             </div>
             <ul class="fly-list">
               <li v-for="(item ,i) in stickList" :key="i" v-if="item.stick=='1'">
@@ -170,7 +170,7 @@
               <!--<i class="layui-icon fly-loading">&#xe63d;</i>-->
               <dd v-for="(item ,i) in countByAuthor" :key="i">
                 <a href="javascript:;" @click="authorInfo(item.username)">
-                  <img :src="item.head_portrait_url"><cite>{{item.nickname}}</cite><i>{{item.zongshu}}次发帖</i>
+                  <img :src="item.head_portrait_url"><cite>{{item.nickname}}</cite><i>{{item.cataCount}}次发帖</i>
                 </a>
               </dd>
             </dl>
@@ -229,6 +229,9 @@
       methods:{
         myCollection:function(){
           this.$router.push({path: 'myCollection'})
+        },
+        myPosting:function(){
+          this.$router.push({path: 'myPosting'})
         },
         add:function(){
           this.$router.push({path: 'add'})

@@ -14,6 +14,7 @@ import MyCollection from '../pages/my-collection'
 import AddWebUpdate from '../pages/add-web-update'
 import AdminRegister from '../pages/admin-register'
 import VisitorsWall from '../pages/visitors-wall'
+import MyPosting from '../pages/my-posting'
 Vue.use(Router)
 
 export default new Router({
@@ -67,6 +68,10 @@ export default new Router({
       path: '/myCollection',
       name: 'my-collection',
       component: MyCollection
+    },{
+      path: '/myPosting',
+      name: 'my-posting',
+      component: MyPosting
     },{
       path: '/addWebUpdate',
       name: 'add-web-update',

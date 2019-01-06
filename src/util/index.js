@@ -1,8 +1,8 @@
+
 /**
  * Created by leigero on 2018/6/21.
  *  此乃工具类
  */
-//import { Indicator } from 'mint-ui';
 export default {
     // 加法
     accAdd (arg1,arg2){

@@ -49,7 +49,7 @@
               <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
               <li><a href="javascript:;" @click="myInfo()">我的信息</a></li>
               <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
-              <li><a href="javascript:;" @click="myCollection()">我的收藏</a></li>
+              <li><a href="javascript:;" @click="myPosting()">我的帖子</a></li>
               <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
               <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
               <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员管理</a></li>
@@ -69,7 +69,7 @@
         <div class="personal_topNumber">
           <ul>
           <li>
-            <i>{{countByAuthor.zongshu}}</i>发帖量
+            <i>{{countByAuthor.cataCount}}</i>发帖量
           </li>
           <li>
             <i>{{ownCommentInfoList.length}}</i>回帖量
@@ -148,10 +148,10 @@
         data:function(){
           return{
             isVisitor:true,
-            userInfo:{},
+            userInfo:this.$store.state.session,
             ownCatalogue:[],
             ownCommentInfoList:[],
-            countByAuthor:{zongshu:0}
+            countByAuthor:{}
           }
         },
         methods:{
@@ -166,37 +166,35 @@
             this.$router.push({path: 'myInfo'})
           },myMessage:function(){
             this.$router.push({path: 'myMessage'})
-          },myCollection:function(){
-            this.$router.push({path: 'myMessage'})
+          },myPosting:function(){
+            this.$router.push({path: 'myPosting'})
           }
         },
         created(){
           var _this = this,
               username = _this.$route.params.username,
-              url = "/api/lobby/getOwnCatalogue?",
-              visitorSession = _this.$store.state.session
+              url = "/api/lobby/getOwnCatalogue?"
 
           //访客进入
           if(username){
-            if(visitorSession && username == visitorSession.username){
+            if(_this.userInfo && username == _this.userInfo.username){
               this.isVisitor = false
             }
             url+="username="+username
           }else{
             //错误进入
-            if(!visitorSession){
+            if(!_this.userInfo){
               _this.$router.push({path: 'firstPage'})
             }
             //自己进入自己主页
-            this.isVisitor = false
-            _this.userInfo = visitorSession;
-            var username = this.userInfo.username
+            _this.isVisitor = false
+            var username = _this.userInfo.username
             url+="username="+username
           }
 
 
           _this.$http.get(url).then(result => {
-            if(result != null){
+            if(result && result.code == 1){
               _this.ownCatalogue = result.data.ownCatalogue
               _this.userInfo = result.data.user
               if(result.data.countByAuthor){
