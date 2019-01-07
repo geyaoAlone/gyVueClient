@@ -135,6 +135,7 @@
           layer.confirm("确定注册吗？",{icon:1},function(){
             var data = _this.registerInfo
             _this.$http.post('api/user/adminSignUp',data,_this.userInfo.token).then(result => {
+              console.info(result)
               if(result){
                 if(result.code == 1){
                   layer.msg('恭喜！注册成功',{time:1000})

@@ -28,21 +28,21 @@
                     <div class="layui-col-md9">
                       <label for="L_title" class="layui-form-label">标题</label>
                       <div class="layui-input-block">
-                        <input type="text" v-model="article.title" id="L_title" name="title" autocomplete="off" class="layui-input">
+                        <input type="text" v-model="formData.title" id="L_title" name="title" autocomplete="off" class="layui-input">
                         <!-- <input type="hidden" name="id" value="{{d.edit.id}}"> -->
                       </div>
                     </div>
                   </div>
                   <div class="layui-form-item layui-form-text">
                     <div class="layui-input-block">
-                      <textarea id="L_content" v-model="article.content" name="content"placeholder="详细描述" class="layui-textarea fly-editor" style="height: 260px;"></textarea>
+                      <textarea id="L_content" v-model="formData.content" name="content"placeholder="详细描述" class="layui-textarea fly-editor" style="height: 260px;"></textarea>
                     </div>
                   </div>
 
                   <div class="layui-form-item login_img">
                     <label for="L_vercode" class="layui-form-label">人类验证</label>
                     <div class="layui-input-inline">
-                      <input type="text" id="L_vercode" v-model="article.vercode" name="vercode" placeholder="请回答后面的问题" autocomplete="off" class="layui-input">
+                      <input type="text" id="L_vercode" v-model="formData.vercode" name="vercode" placeholder="请回答后面的问题" autocomplete="off" class="layui-input">
                     </div>
                     <div class="layui-form-mid">
                       <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
@@ -68,7 +68,7 @@
     data: function() {
       return{
         userSession:this.$store.state.session,
-        article:{}
+        formData:{}
       }
     },
     methods:{
@@ -84,30 +84,30 @@
         }
       },
       update:function(){
-        if(!this.article.type){
+        if(!this.formData.type){
           layer.msg('请选择发表类型',{time:1000});
-        }else if(!this.article.title){
+        }else if(!this.formData.title){
           layer.msg('请填写标题',{time:1000},function () {
             $('#L_title').focus();
           });
-        }else if(!this.article.content){
+        }else if(!this.formData.content){
           layer.msg('请填写内容',{time:1000},function () {
             $('#L_content').focus();
           });
-        }else if(!this.article.vercode){
+        }else if(!this.formData.vercode){
           layer.msg('请填写验证',{time:1000},function () {
             $('#L_vercode').focus();
           });
         }else{
           var _this = this;
-          _this.$http.post('api/user/updateArticle',_this.article,_this.userSession.token).then(result => {
+          _this.$http.post('api/user/updateArticle',_this.formData,_this.userSession.token).then(result => {
             if(result.code == 1){
               layer.msg('恭喜！修改成功',{time:1000},function(){
-                _this.$router.push({path: 'detail',query:{id:_this.article.serialNumber}})
+                _this.$router.push({path: 'detail',query:{id:_this.formData.serialNumber}})
               })
             }else{
               layer.msg(result.message,{time:1000},function(){
-                _this.$http.get('/api/gateway/identifyCode?username='+_this.article.author).then(result => {
+                _this.$http.get('/api/gateway/identifyCode?username='+_this.formData.author).then(result => {
                   document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
                 })
               })
@@ -134,13 +134,13 @@
       if(id){
         this.$http.get('/api/user/queryEditArticle?id='+id,info.token).then(result => {
           console.info(result.data)
-          this.article = result.data
-          var type = this.article.type,_this = this
+          this.formData = result.data
+          var type = this.formData.type,_this = this
           layui.use('form',function(){
             var form = layui.form
             form.val("edit",{"type": type})
             form.on('select(type)', function(data){
-              _this.article.type = data.value
+              _this.formData.type = data.value
             });
           })
         })

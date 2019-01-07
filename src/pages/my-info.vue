@@ -54,9 +54,9 @@
               <div class="layui-input-inline">
                 <!--<input type="radio" name="sex" value="1" title="男" lay-filter="sex">-->
                 <!--<input type="radio" name="sex" value="2" title="女" lay-filter="sex">-->
-                <select>
-                  <option name="sex" lay-filter="sex">男</option>
-                  <option name="sex" lay-filter="sex">女</option>
+                <select name="xingbie" lay-filter="sex">
+                  <option value="1">男</option>
+                  <option value="2">女</option>
                 </select>
               </div>
             </div>
@@ -154,9 +154,6 @@
 </template>
 
 <script>
-  function selectThis() {
-    alert('123')
-  }
     export default {
       name: "my-info",
       data:function(){
@@ -304,7 +301,6 @@
                      '    </div>' +
                      '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect">' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/6.jpg"></a>' +
-                     '      <div class="info_test"><i class="layui-icon layui-icon-ok"></i></div>' +
                      '    </div>' +
                      '    <div class="layui-col-xs6 layui-col-sm6 layui-col-md4 info_photoSelect"> ' +
                      '      <a href="javascript:;"><img src="http://120.79.240.9:8080/headImg/7.jpg"></a>   ' +
@@ -354,6 +350,8 @@
               }
           })
           $('.layui-col-md4 a').on('click', function () {
+            $(this).parent().parent().find('.info_test').remove();
+            $(this).after('<div class="info_test"><i class="layui-icon layui-icon-ok"></i></div>');
             selectedSrc = $(this).find('img').eq(0).attr('src');
           })
 
@@ -364,11 +362,13 @@
         var _this = this
         layui.use('form',function(){
           var form = layui.form
-          form.val("modify",{"sex": _this.modifyInfo.sex})
-          form.on('radio(sex)', function(data){
+          form.val("modify",{"xingbie":_this.modifyInfo.sex})
+          form.on('select(sex)', function(data){
             _this.modifyInfo.sex = data.value
           });
+
         })
+
       },
       created(){
         var _this = this

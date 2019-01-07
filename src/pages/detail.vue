@@ -79,7 +79,7 @@
                     <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'publicity',false)" v-if="userSession.username == detail.author && detail.publicity">藏起来</span>
 
                     <span v-if="userSession.username == detail.author" class="layui-btn layui-btn-xs jie-admin" @click="editThisDetail(detail.serialNumber)">修改</span>
-                    <span class="layui-btn layui-btn-xs jie-admin" @click="saveFavorite(detail.serialNumber)">收藏</span>
+                    <span v-if="userSession.username != detail.author" class="layui-btn layui-btn-xs jie-admin" @click="saveFavorite(detail.serialNumber)">收藏</span>
                   </div>
                 </div>
               </div>

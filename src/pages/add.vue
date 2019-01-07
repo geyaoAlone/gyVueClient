@@ -140,10 +140,16 @@
           }else{
             var _this = this;
             _this.$http.post('api/user/saveNewArticle',_this.formData,_this.userSession.token).then(result => {
-              var _id = result.data;
-              layer.msg('恭喜！添加成功',{time:1000},function(){
-                _this.$router.push({path: 'detail',query:{id:_id}})
-              })
+              if(result){
+                if(result.code == 1 && result.data){
+                  var _id = result.data;
+                  layer.msg('恭喜！添加成功',{time:1000},function(){
+                    _this.$router.push({path: 'detail',query:{id:_id}})
+                  })
+                }else{
+                  layer.msg(result.message,{time:1000})
+                }
+              }
             })
 
           }
