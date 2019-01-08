@@ -51,11 +51,12 @@
           <div class="visi_but" v-if="item.dealStatus =='0'">
             <a href="javascript:;" @click="sign(item.id)">标记为已处理</a>
           </div>
-          <div class="visi_img">
+          <div class="visi_img" v-if="item.dealStatus =='1'">
             <i class="layui-icon layui-icon-tips"></i>
           </div>
         </div>
       </div>
+      <div v-if="guestReplyList.length == 0" class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><i style="font-size:14px;">暂无任何留言</i></div>
     </div>
   </div>
 </template>

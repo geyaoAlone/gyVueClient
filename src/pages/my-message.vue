@@ -29,34 +29,37 @@
       <div class="layui-col-xs12 layui-col-sm6 message_chunk" v-for="(item ,i) in messageList" :key="i">
         <div class="message_interior">
           <div class="mess_personalBox">
-            <img src="http://120.79.240.9:8080/headImg/8.jpg"/>
+            <!--{{item}}-->
+            <img :src="item.headPortraitUrl" @click="otherHomepage(item.username)"/>
             <div class="mess_name">
-              <a>死老丁</a>
-              <p>2018-12-12 12:12:12</p>
+              <a href="javascript:;" @click="otherHomepage(item.username)">{{item.nickname}}</a>
+              <p>{{item.createTime}}</p>
             </div>
             <div class="mess_operate">
-              <span class="layui-btn layui-btn-xs jie-admin">回复</span>
+              <span class="layui-btn layui-btn-xs jie-admin" @click="goDetail(item.serialNumber,item.nickname)">回复</span>
             </div>
           </div>
-          <div class="message_content">
-            这个好办，把啥啥啥弄到啥啥哈上就行了
+          <div class="message_content" v-html="item.replyContent">
+
           </div>
           <div class="mess_text">
-            回复了<a href="javascript:;"> 这个怎么办？</a>
+            回复了<a href="javascript:;" @click="goDetail(item.serialNumber)"> {{item.title}}</a>
           </div>
         </div>
       </div>
+      <div v-if="messageList.length == 0" class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><i style="font-size:14px;">您暂无任何消息</i></div>
     </div>
   </div>
 </template>
 
 <script>
+  import {fly} from '../util/editUtil.js';
     export default {
         name: "my-message",
         data:function () {
           return{
             userInfo:{},
-            messageList:[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]
+            messageList:[]
           }
         },
         methods:{
@@ -77,10 +80,34 @@
           },
           myPosting:function(){
             this.$router.push({path: 'myPosting'})
+          },
+          goDetail:function (id,name) {
+            this.$router.push({path: 'detail',query:{id:id,name:name}})
+          },
+          otherHomepage:function (username) {
+            this.$router.push({name: 'my-homepage', params: {username: username}})
           }
         },
         created(){
+          var _this = this
           this.userInfo = this.$store.state.session;
+          if(!this.userInfo){
+            layer.msg('抱歉，您无权访问',{time:1000},function () {
+              _this.$router.push({path: 'firstPage'})
+            })
+          }else {
+            _this.$http.get("api/user/queryUserSelfReciveMessage?username="+this.userInfo.username, this.userInfo.token).then(result => {
+              console.info(result)
+              if(result){
+                if(result.code == 1 && result.data){
+                  result.data.forEach(content=>{
+                    content.replyContent = fly.content(content.replyContent)
+                  })
+                  _this.messageList = result.data
+                }
+              }
+            })
+          }
         }
 
     }

@@ -128,7 +128,7 @@
 
           </div>
 
-          <div class="fly-panel detail-box" id="flyReply">
+          <div class="fly-panel detail-box">
             <fieldset class="layui-elem-field layui-field-title" style="text-align: center;">
               <legend>回帖</legend>
             </fieldset>
@@ -180,7 +180,7 @@
 
 
               <!-- 无数据时 -->
-               <li class="fly-none" v-if="commentList == []">消灭零回复</li>
+               <li class="fly-none" v-if="commentList.length == 0">消灭零回复</li>
             </ul>
 
             <div class="layui-form layui-form-pane">
@@ -228,7 +228,7 @@
 
       </div>
     </div>
-
+<div ref="comments"></div>
   </div>
 </template>
 
@@ -242,7 +242,8 @@
             detail:{},
             heatData:[],
             content:'',
-            commentList:[]
+            commentList:[],
+            replyName:''
           }
         },
         methods:{
@@ -280,7 +281,8 @@
                                  username : this.userSession.username,
                              replyContent : this.content,
                             authorHeadUrl : this.userSession.headPortraitUrl,
-                             thumbUpTimes : 0
+                             thumbUpTimes : 0,
+                                defendant : this.detail.author
               }
               var _this = this
               this.$http.post('api/user/saveComment',comment,this.userSession.token).then(result => {
@@ -391,6 +393,12 @@
           fly.layEditor({
             elem: '.fly-editor'
           });
+          if(this.replyName){
+            setTimeout(()=> {
+              var gao = this.$refs.comments.offsetTop
+              window.scrollTo({"behavior": "smooth", "top": gao})
+            },1000)
+          }
         },
         created(){
           let _this = this
@@ -398,21 +406,32 @@
           if(_this.userSession){
             URL +='&username='+_this.userSession.username
           }
+          var waiting = layer.msg('页面打开中...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000});
           _this.$http.get(URL).then(result => {
-            var data = result.data
-            console.info(data)
-            data.detailData.content = fly.content(data.detailData.content)
-            _this.detail = data.detailData
-            _this.heatData = data.heatData
-            data.commentList.forEach(comment=>{
-              comment.replyContent = fly.content(comment.replyContent)
-            });
-            _this.commentList = data.commentList;
-            //zanok
+
+            if(result && result.data){
+
+              var data = result.data
+              data.detailData.content = fly.content(data.detailData.content)
+              _this.detail = data.detailData
+              _this.heatData = data.heatData
+              data.commentList.forEach(comment=>{
+                comment.replyContent = fly.content(comment.replyContent)
+              });
+              _this.commentList = data.commentList
+
+            }
+            layer.close(waiting)
           });
 
+          var name = this.$route.query.name;
+          if(name){
+            this.replyName = name
+            this.content = '@'+name
+          }
         }
     }
+
 </script>
 
 <style scoped>
