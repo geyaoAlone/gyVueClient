@@ -133,7 +133,6 @@
                       session.token = token
                       _this.$store.commit('setSession',session);
                       window.location.reload();
-                      _this.$router.push({path: '/'})
                     }
                   })
                 })
@@ -145,6 +144,12 @@
                 });
               }
             })
+          }
+        },
+        created(){
+          var session = this.$store.state.session;
+          if(session){
+            this.$router.push({path: '/'})
           }
         }
     }

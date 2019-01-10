@@ -40,7 +40,7 @@
                         <input type="checkbox" name="switch" lay-skin="switch" lay-filter="publicity" lay-text="是|否" checked>
                       </div>
                     </div>
-                    <div class="layui-col-md3">
+                    <div class="layui-col-md3" v-if="userSession.authorities[0] =='ADMIN'">
                       <label class="layui-form-label">是否精帖</label>
                       <div class="layui-input-block">
                         <input type="checkbox" name="switch" lay-skin="switch" lay-filter="best" lay-text="是|否" >

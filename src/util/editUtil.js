@@ -98,8 +98,8 @@ var fly = {
               //执行上传实例
               upload.render({
                 elem: '#uploadImg'
-                ,url: 'http://120.79.240.9:9999/pictureUpload.do'//'http://120.79.240.9:9999/pictureUpload.do'
-                ,data:{usename:'geyao'}
+                ,url: 'http://120.79.240.9:9999/pictureUpload.do'//'http://120.79.240.9:9999/pictureUpload.do'  'http://localhost:9999/pictureUpload.do'
+                ,data:{usename:_this.userSession.username}
                 ,size: 2000
                 ,before: function(obj){ //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
                   layer.msg('图片上传中,请稍等...', {shade: [0.5, '#393D49'], icon: 16, time: 3600 * 1000})

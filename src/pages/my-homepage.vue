@@ -171,10 +171,9 @@
           }
         },
         created(){
-          var _this = this,
+          var _this = this,layer,
               username = _this.$route.params.username,
               url = "/api/lobby/getOwnCatalogue?"
-
           //访客进入
           if(username){
             if(_this.userInfo && username == _this.userInfo.username){
@@ -192,24 +191,28 @@
             url+="username="+username
           }
 
+          layui.use('layer', function() {
+            layer = layui.layer;
+            var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000});
+            _this.$http.get(url).then(result => {
+              if(result && result.code == 1){
+                _this.ownCatalogue = result.data.ownCatalogue
+                _this.userInfo = result.data.user
+                if(result.data.countByAuthor){
+                  _this.countByAuthor = result.data.countByAuthor
+                }
 
-          _this.$http.get(url).then(result => {
-            if(result && result.code == 1){
-              _this.ownCatalogue = result.data.ownCatalogue
-              _this.userInfo = result.data.user
-              if(result.data.countByAuthor){
-                _this.countByAuthor = result.data.countByAuthor
+                var list = result.data.ownCommentInfoList
+                list.forEach(comment=>{
+                  var content = fly.content(comment.replyContent)
+                  comment.replyContent = content
+                })
+                _this.ownCommentInfoList = list
               }
+            })
+            layer.close(waiting)
+          })
 
-              var list = result.data.ownCommentInfoList
-              list.forEach(comment=>{
-                var content = fly.content(comment.replyContent)
-                comment.replyContent = content
-              })
-              _this.ownCommentInfoList = list
-            }
-
-          });
         }
     }
 </script>

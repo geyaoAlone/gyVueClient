@@ -158,7 +158,7 @@
       name: "my-info",
       data:function(){
         return{
-          userInfo:{},
+          userInfo: this.$store.state.session,
           modifyInfo:{},
           passwords:{oldPassword:'',newPassword:'',newPassword1:''}
         }
@@ -372,21 +372,24 @@
       },
       created(){
         var _this = this
-        this.userInfo = this.$store.state.session;
-
-        if(!this.userInfo){
-          layer.msg('抱歉，您无法访问',{time:1000},function () {
-            _this.$router.push({path: 'firstPage'})
-          })
-        }else{
-          this.modifyInfo = {
-            nickname:this.userInfo.nickname,
-            sex:this.userInfo.sex,
-            email:this.userInfo.email,
-            city:this.userInfo.city,
-            description:this.userInfo.description
+        layui.use('layer', function() {
+          var layer = layui.layer;
+          if (!_this.userInfo) {
+            layer.msg('抱歉，您无法访问', {time: 1000}, function () {
+              _this.$router.push({path: 'firstPage'})
+            })
+          } else {
+            var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'], icon: 16, time: 3600 * 1000});
+            _this.modifyInfo = {
+              nickname: _this.userInfo.nickname,
+              sex: _this.userInfo.sex,
+              email: _this.userInfo.email,
+              city: _this.userInfo.city,
+              description: _this.userInfo.description
+            }
           }
-        }
+          layer.close(waiting)
+        })
        /* this.$http.get(url).then(result => {
 
         });*/

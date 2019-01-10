@@ -330,18 +330,22 @@
 
       },
       created() {
-        console.info(this.userSession)
-        var type = this.$route.params.type
-        var url = this.queryUrl+'orderType=id'
-        if(type){
-          url += '&type='+type;
-        }
-        this.$http.get(url).then(result => {
-          this.catalogueList = result.data.catalogueList
-          this.stickList = result.data.stickList
-          this.countByAuthor = result.data.countByAuthor
-        });
-
+        let _this = this
+        layui.use('layer', function() {
+          layer = layui.layer;
+          var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000});
+          var type = _this.$route.params.type
+          var url = _this.queryUrl + 'orderType=id'
+          if (type) {
+            url += '&type=' + type;
+          }
+          _this.$http.get(url).then(result => {
+            _this.catalogueList = result.data.catalogueList
+            _this.stickList = result.data.stickList
+            _this.countByAuthor = result.data.countByAuthor
+          })
+          layer.close(waiting)
+        })
       }
   }
 </script>

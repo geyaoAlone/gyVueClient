@@ -81,8 +81,8 @@ export default {
         _this.$http.get('/api/user/logout?username='+_this.userSession.username,_this.userSession.token).then(result => {
             layer.msg('退出成功',{time:1000},function(){
               _this.$store.commit('clearSession',this.userSession)
-              window.location.reload()
-              _this.$router.push({path: '/'})
+              this.userSession = {}
+              window.location.reload();
             })
         });
 

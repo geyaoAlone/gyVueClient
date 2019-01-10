@@ -64,15 +64,58 @@
                   </div>
                 </div>
                 <div class="layui-form-item">
-                  <button class="layui-btn" @click="register()">立即注册</button>
+                  <!--<button class="layui-btn" @click="register()">立即注册</button>-->
+                  <button class="layui-btn" id="register">立即注册</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="fly-panel fly-panel-user" pad20 ref="user">
+        <table lay-filter="user-table" id="userTable">
+          <thead>
+            <tr>
+              <th lay-data="{field:'headPortraitUrl', width:'10%'}">头像</th>
+              <th lay-data="{field:'username', width:'10%'}">用户名</th>
+              <th lay-data="{field:'nickname', width:'15%'}">昵称</th>
+              <th lay-data="{field:'userStatus', width:'8%'}">用户状态</th>
+              <th lay-data="{field:'loginTimes', width:'9%', sort:true}">登陆次数</th>
+              <th lay-data="{field:'createDate', width:'10%'}">注册时间</th>
+              <th lay-data="{field:'sex', width:'6%'}">性别</th>
+              <th lay-data="{field:'city', width:'8%'}">城市</th>
+              <th lay-data="{field:'email'}">邮箱</th>
+              <!--<th lay-data="{field:'right'}">操作</th>-->
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item ,i) in userList" :key="i" >
+              <td><img :src="item.headPortraitUrl"/></td>
+              <td>{{item.username}}</td>
+              <td>{{item.nickname}}</td>
+              <td >
+                <span style="color:green" v-if="item.userStatus == '1'">正常</span>
+                <span style="color:red" v-if="item.userStatus == '0'">禁用</span>
+              </td>
+              <td>{{item.loginTimes}}</td>
+              <td>{{item.createDate}}</td>
+              <td>
+                <span v-if="item.sex == '1'">男</span>
+                <span v-if="item.sex == '2'">女</span>
+              </td>
+              <td>{{item.city}}</td>
+              <td>{{item.email}}</td>
+              <!--<td class="sss">
+                &lt;!&ndash;<a  v-if="item.userStatus == '0'" @click="updateUserStatus(item.username,'1',i)" >解禁</a>&ndash;&gt;
+                  <a href="javascript:;" v-if="item.userStatus == '1'" @click="updateUserStatus(item.username,'0',i)">禁用</a>
+              </td>-->
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -80,8 +123,9 @@
         name: "admin-register",
       data:function () {
         return{
-          userInfo:{},
-          registerInfo:{sex:"1"}
+          userInfo:this.$store.state.session,
+          registerInfo:{sex:"1"},
+          userList:[]
         }
       },
       methods:{
@@ -137,8 +181,15 @@
             _this.$http.post('api/user/adminSignUp',data,_this.userInfo.token).then(result => {
               console.info(result)
               if(result){
-                if(result.code == 1){
-                  layer.msg('恭喜！注册成功',{time:1000})
+                if(result.code == 1 && result.data){
+                  layer.msg('恭喜！注册成功',{time:1000},function () {
+                    _this.registerInfo = {}
+                    _this.userList = _this.userList.unshift(result.data)
+                    console.info(_this.userList)
+                    var gao = _this.$refs.user.offsetTop
+                    window.scrollTo({"behavior": "smooth", "top": gao})
+                  })
+
                 }else{
                   layer.msg(result.message,{time:1300})
                 }
@@ -146,8 +197,20 @@
           });
 
         })
-
-
+        },
+        updateUserStatus:function (username,status,i) {
+          var _this = this
+          _this.$http.get('api/user/updateUserStatus?operator='+_this.userInfo.username+'&username='+username+'&status='+status,_this.userInfo.token).then(result => {
+            if(result) {
+              if (result.code == 1) {
+                layer.msg('操作成功',{time:1000},function () {
+                  _this.userList[i].userStatus = status
+                })
+              }else{
+                layer.msg(result.message,{time:2000})
+              }
+            }
+          })
         }
       },
       mounted(){
@@ -162,10 +225,61 @@
         })
       },
       created(){
-        this.userInfo = this.$store.state.session;
-        if((!this.userInfo) ||this.userInfo.authorities[0] !='ADMIN'){
-          this.$router.push({path: '/'})
-        }
+        let _this = this,table
+        layui.use(['layer','table'], function() {
+          var layer = layui.layer
+          table = layui.table;
+          var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000});
+          if((!_this.userInfo) || _this.userInfo.authorities[0] !='ADMIN'){
+            layer.msg('抱歉！您无权访问或账户已退出，请重新登陆',{time:2000},function(){
+              _this.$router.push({path: 'login'})
+            })
+          }
+          _this.$http.get("api/user/getAllUserInfo?username="+_this.userInfo.username,_this.userInfo.token).then(result => {
+            if(result){
+              if(result.code == 1 && result.data){
+                _this.userList = result.data
+                setTimeout(()=> {
+                  table.init('user-table', {
+                    page: true //开启分页
+                    //height: 330 //设置高度
+                    ,limit: 10 //注意：请务必确保 limit 参数（默认：10）是与你服务端限定的数据条数一致
+                    //支持所有基础参数
+                  })
+                },100)
+              }
+            }
+          })
+          layer.close(waiting)
+          $('#register').on('click', function () {
+            layer.confirm("确定注册吗？",{icon:1},function(){
+              var data = _this.registerInfo
+              _this.$http.post('api/user/adminSignUp',data,_this.userInfo.token).then(result => {
+                console.info(result)
+                if(result){
+                  if(result.code == 1 && result.data){
+                    layer.msg('恭喜！注册成功',{time:1000},function () {
+                      _this.registerInfo = {}
+                      var newUser = result.data
+                      _this.userList.unshift(newUser)
+                      console.info(_this.userList)
+                      var gao = _this.$refs.user.offsetTop
+                      window.scrollTo({"behavior": "smooth", "top": gao})
+                      setTimeout(()=> {
+                        table.init('user-table', {page: true,limit: 10})
+                      },100)
+                    })
+
+                  }else{
+                    layer.msg(result.message,{time:1300})
+                  }
+                }
+              });
+
+            })
+          })
+
+        })
 
       }
 

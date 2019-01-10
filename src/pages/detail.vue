@@ -71,7 +71,6 @@
 
                     <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'stick',true)" v-if="userSession.authorities[0] =='ADMIN' && !detail.stick">置顶</span>
                     <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'stick',false)" v-if="userSession.authorities[0] =='ADMIN' && detail.stick">置顶个屁</span>
-
                     <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',true)" v-if="userSession.authorities[0] =='ADMIN' && !detail.best">加精</span>
                     <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',false)" v-if="userSession.authorities[0] =='ADMIN' && detail.best">加鸡毛精</span>
 
@@ -261,7 +260,7 @@
                 comment.replyContent = fly.content(comment.replyContent)
               });
               this.commentList = data.commentList;
-
+              window.scrollTo({"behavior": "smooth", "top": 0})
             });
           },
           queryType:function (e,type) {
@@ -351,7 +350,7 @@
               if('del' == type) {
                 str = '确定删除此帖吗？'
               }
-              layer.confirm(str,{icon:3},function () {
+              var conf =layer.confirm(str,{icon:3},function () {
                 _this.$http.get('/api/user/dealArticle?id=' + id + '&type=' + type + '&val=' + value,_this.userSession.token).then(result => {
                   if (result.code == 1) {
                     if('del' == type) {
@@ -360,7 +359,7 @@
                       })
                     }else{
                       _this.detail[type] = value
-                      layer.close('confirm')
+                      layer.close(conf)
                     }
                   }
                 })
@@ -397,38 +396,41 @@
             setTimeout(()=> {
               var gao = this.$refs.comments.offsetTop
               window.scrollTo({"behavior": "smooth", "top": gao})
-            },1000)
+            },100)
           }
         },
         created(){
           let _this = this
-          var URL = '/api/lobby/queryConnotationDetail?serialNumber='+_this.$route.query.id
-          if(_this.userSession){
-            URL +='&username='+_this.userSession.username
-          }
-          var waiting = layer.msg('页面打开中...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000});
-          _this.$http.get(URL).then(result => {
-
-            if(result && result.data){
-
-              var data = result.data
-              data.detailData.content = fly.content(data.detailData.content)
-              _this.detail = data.detailData
-              _this.heatData = data.heatData
-              data.commentList.forEach(comment=>{
-                comment.replyContent = fly.content(comment.replyContent)
-              });
-              _this.commentList = data.commentList
-
+          layui.use('layer', function() {
+            layer = layui.layer;
+            var URL = '/api/lobby/queryConnotationDetail?serialNumber='+_this.$route.query.id
+            if(_this.userSession){
+              URL +='&username='+_this.userSession.username
             }
-            layer.close(waiting)
-          });
+            var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000});
+            _this.$http.get(URL).then(result => {
 
-          var name = this.$route.query.name;
-          if(name){
-            this.replyName = name
-            this.content = '@'+name
-          }
+              if(result && result.data){
+
+                var data = result.data
+                data.detailData.content = fly.content(data.detailData.content)
+                _this.detail = data.detailData
+                _this.heatData = data.heatData
+                data.commentList.forEach(comment=>{
+                  comment.replyContent = fly.content(comment.replyContent)
+                });
+                _this.commentList = data.commentList
+
+              }
+              layer.close(waiting)
+            });
+
+            var name = _this.$route.query.name;
+            if(name){
+              _this.replyName = name
+              _this.content = '@'+name
+            }
+          });
         }
     }
 
