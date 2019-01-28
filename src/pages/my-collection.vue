@@ -8,16 +8,16 @@
           <li ><a href="javascript:;" @click="myInfo()">我的信息</a></li>
           <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
           <li class="layui-this"><a href="javascript:;" @click="myPosting()">我的帖子</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
         </ul>
 
-        <div v-if='userInfo != null' class="fly-column-right layui-hide-xs">
+        <div v-if="JSON.stringify(userInfo) != '{}'" class="fly-column-right layui-hide-xs">
           <!--<span class="fly-search"><i class="layui-icon"></i></span>-->
           <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
         </div>
-        <div v-if='userInfo != null' class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
+        <div v-if="JSON.stringify(userInfo) != '{}'" class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
           <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
         </div>
       </div>
@@ -50,7 +50,7 @@
     name: "my-collection",
     data:function () {
       return{
-        userInfo:{},
+        userInfo:JSON.parse(sessionStorage.getItem('user')),
         myCollectionList:[],
         myCatalogueCount:'0',
         myCollectionCount:'0'
@@ -82,23 +82,24 @@
     },
     created(){
       var _this = this
-      this.userInfo = this.$store.state.session;
-      if(!this.userInfo){
-        layer.msg('抱歉，您无法访问',{time:1000},function () {
-          _this.$router.push({path: 'firstPage'})
-        })
-      }else {
-        _this.$http.get("api/user/queryMyCollection?username="+this.userInfo.username, this.userInfo.token).then(result => {
-          if(result){
-            if(result.code == 1 && result.data){
-              console.info(result.data)
-              this.myCollectionList = result.data.myCollection
-              this.myCatalogueCount = result.data.statistics[0].cataCount
-              this.myCollectionCount = result.data.statistics[0].favorCount
+      layui.use('layer', function() {
+        layer = layui.layer;
+        if(!_this.userInfo){
+          layer.msg('抱歉，您无法访问',{time:1000},function () {
+            _this.$router.push({path: 'firstPage'})
+          })
+        }else {
+          _this.$http.get('user/queryMyCollection',layer,_this).then(result => {
+            if(result){
+              if(result.code == 1 && result.data){
+                _this.myCollectionList = result.data.myCollection
+                _this.myCatalogueCount = result.data.statistics[0].cataCount
+                _this.myCollectionCount = result.data.statistics[0].favorCount
+              }
             }
-          }
-        })
-      }
+          })
+        }
+      })
     }
   }
 </script>

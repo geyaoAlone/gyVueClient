@@ -8,9 +8,9 @@
           <li class="layui-this"><a href="javascript:;" @click="myInfo()">我的信息</a></li>
           <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
           <li><a href="javascript:;" @click="myPosting()">我的帖子</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
+          <li v-if="userInfo != null && userInfo.authority =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
+          <li v-if="userInfo != null && userInfo.authority =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
+          <li v-if="userInfo != null && userInfo.authority =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
         </ul>
 
         <div v-if='userInfo != null' class="fly-column-right layui-hide-xs">
@@ -45,8 +45,8 @@
                 <input v-model="modifyInfo.nickname" type="text" id="L_username" name="username" value="" class="layui-input">
               </div>
               <div class="info_role">
-                <span v-if="userInfo.authorities[0] =='USER'">(小站会员)</span>
-                <span v-if="userInfo.authorities[0] =='ADMIN'">(小站管理员)</span>
+                <span v-if="userInfo.authority =='USER'">(小站会员)</span>
+                <span v-if="userInfo.authority =='ADMIN'">(小站管理员)</span>
               </div>
             </div>
             <div class="layui-form-item">
@@ -65,7 +65,9 @@
               <div class="layui-input-inline">
                 <input v-model="modifyInfo.email" type="text" id="L_email" name="email" class="layui-input">
               </div>
+<!--
               <div class="layui-form-mid layui-word-aux">如果您在邮箱已激活的情况下，变更了邮箱，需 <a href="javascript:;" style="color: #4f99cf;">重新验证邮箱</a>。</div>
+-->
             </div>
             <div class="layui-form-item">
               <label for="L_city" class="layui-form-label">城市</label>
@@ -158,7 +160,7 @@
       name: "my-info",
       data:function(){
         return{
-          userInfo: this.$store.state.session,
+          userInfo: {},
           modifyInfo:{},
           passwords:{oldPassword:'',newPassword:'',newPassword1:''}
         }
@@ -198,20 +200,19 @@
           var _this = this
           _this.modifyInfo.username = _this.userInfo.username
           if(isModify){
-            _this.$http.post('api/user/updateUserBasicInfo',_this.modifyInfo,_this.userInfo.token).then(result => {
+            _this.$http.post('user/updateUserBasicInfo',_this.modifyInfo,layer,_this).then(result => {
               if(result) {
                 if (result.code == 1 && result.data) {
                   var user = result.data;
                   layer.msg('更新成功', {time: 1000}, function () {
-                    _this.$store.commit('clearSession', _this.userInfo)
-                    _this.$http.get("api/gateway/refreshToken", _this.userInfo.token).then(result => {
-                      if (result.code == 1) {
-                        user.token = result.data
-                        _this.userInfo = user
-                        _this.$store.commit('setSession', user);
+                    _this.$http.get("user/updateUserToken",layer,_this).then(result => {
+                      if (result.code == 1 && result.data) {
+                        _this.userInfo = result.data.userInfo
+                        localStorage.token = result.data.token
+                        sessionStorage.user = JSON.stringify(result.data.userTemp)
                       }else{
                         layer.msg('请重新登陆', {time: 1000}, function () {
-                          this.$router.push({path: '/'})
+                          this.$router.push({path: 'login'})
                         })
                       }
                     });
@@ -258,19 +259,17 @@
             });
           }else{
             _this.passwords.username = _this.userInfo.username
-            _this.$http.post('api/user/updateUserPassword',_this.passwords,_this.userInfo.token).then(result => {
+            _this.$http.post('user/updateUserPassword',_this.passwords,layer,_this).then(result => {
               if(result) {
                 if (result.code == 1) {
                   layer.msg('密码修改成功，请牢记新密码', {time: 1000}, function () {
                     _this.passwords = {}
-                    _this.$store.commit('clearSession', _this.userInfo)
-                    _this.$http.get("api/gateway/refreshToken", _this.userInfo.token).then(result => {
+                    _this.$http.get("gateway/refreshToken",layer,_this).then(result => {
                       if (result.code == 1) {
-                        _this.userInfo.token = result.data
-                        _this.$store.commit('setSession', _this.userInfo);
+                        localStorage.token = result.data
                       }else{
-                        layer.msg('请重新登陆', {time: 1000}, function () {
-                          this.$router.push({path: '/'})
+                        layer.msg('我天！你都把系统改崩啦？没关系的重新登陆试试', {time: 1000}, function () {
+                          _this.$router.push({path: 'login'})
                         })
                       }
                     });
@@ -323,21 +322,20 @@
               ,shadeClose:true
               ,content: html
               ,yes: function(index, layero){
-              _this.$http.post('api/user/updateUserHeadImg',{username:_this.userInfo.username,imgUrl:selectedSrc},_this.userInfo.token).then(result => {
+              _this.$http.post('user/updateUserHeadImg',{imgUrl:selectedSrc},layer,_this).then(result => {
                   if(result.code ==1){
                     layer.msg('头像修改成功',{time:1000},function () {
                       var user = result.data
-                      _this.$store.commit('clearSession', _this.userInfo)
-                      _this.$http.get("api/gateway/refreshToken", _this.userInfo.token).then(result => {
-                        if (result.code == 1) {
-                          user.token = result.data
-                          _this.userInfo = user
-                          _this.$store.commit('setSession', user);
+                      _this.$http.get("user/updateUserToken",layer,_this).then(result => {
+                        if (result.code == 1 && result.data) {
+                          _this.userInfo = result.data.userInfo
+                          localStorage.token = result.data.token
+                          sessionStorage.user = JSON.stringify(result.data.userTemp)
                           $('#showImg').attr('src',selectedSrc)
                           layer.close(index)
                         }else{
-                          layer.msg('请重新登陆', {time: 1000}, function () {
-                            this.$router.push({path: '/'})
+                          layer.msg('我天！你都把系统改崩啦？没关系的重新登陆试试', {time: 1000}, function () {
+                            _this.$router.push({path: 'login'})
                           })
                         }
                       });
@@ -358,41 +356,40 @@
         },
 
       },
-      mounted(){
-        var _this = this
-        layui.use('form',function(){
-          var form = layui.form
-          form.val("modify",{"xingbie":_this.modifyInfo.sex})
-          form.on('select(sex)', function(data){
-            _this.modifyInfo.sex = data.value
-          });
-
-        })
-
-      },
       created(){
         var _this = this
-        layui.use('layer', function() {
-          var layer = layui.layer;
-          if (!_this.userInfo) {
-            layer.msg('抱歉，您无法访问', {time: 1000}, function () {
-              _this.$router.push({path: 'firstPage'})
-            })
-          } else {
-            var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'], icon: 16, time: 3600 * 1000});
-            _this.modifyInfo = {
-              nickname: _this.userInfo.nickname,
-              sex: _this.userInfo.sex,
-              email: _this.userInfo.email,
-              city: _this.userInfo.city,
-              description: _this.userInfo.description
-            }
-          }
-          layer.close(waiting)
-        })
-       /* this.$http.get(url).then(result => {
+        layui.use(['layer','form'], function() {
+          var layer = layui.layer,form = layui.form
+          _this.$http.get('user/getUserInfo',layer,_this).then(result => {
+            if(result){
+              if(result.code === 1 && result.data){
 
-        });*/
+                _this.userInfo = result.data
+                if (!_this.userInfo) {
+                  layer.msg('抱歉，您无法访问', {time: 1000}, function () {
+                    _this.$router.push({path: 'firstPage'})
+                  })
+                }
+
+                _this.modifyInfo = {
+                  nickname: _this.userInfo.nickname,
+                  sex: _this.userInfo.sex,
+                  email: _this.userInfo.email,
+                  city: _this.userInfo.city,
+                  description: _this.userInfo.description
+                }
+                setTimeout(()=> {
+                  form.val("modify",{"xingbie":_this.modifyInfo.sex})
+                  form.on('select(sex)', function(data){
+                    _this.modifyInfo.sex = data.value
+                  });
+                },100)
+              }else{
+                layer.msg(result.message, {time: 1500})
+              }
+            }
+          })
+        })
       }
     }
 </script>

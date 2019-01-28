@@ -8,16 +8,16 @@
           <li ><a href="javascript:;" @click="myInfo()">我的信息</a></li>
           <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
           <li><a href="javascript:;" @click="myPosting()">我的帖子</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
-          <li class="layui-this" v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
+          <li class="layui-this" v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
         </ul>
 
-        <div v-if='userInfo != null' class="fly-column-right layui-hide-xs">
+        <div v-if="JSON.stringify(userInfo) != '{}'" class="fly-column-right layui-hide-xs">
           <!--<span class="fly-search"><i class="layui-icon"></i></span>-->
           <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
         </div>
-        <div v-if='userInfo != null' class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
+        <div v-if="JSON.stringify(userInfo) != '{}'" class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
           <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
         </div>
       </div>
@@ -74,7 +74,7 @@
 <script>
     import {fly} from '../util/editUtil.js';
     export default {
-        name: "add-web-update",
+      name: "add-web-update",
       data:function () {
         return{
           userInfo:{},
@@ -90,6 +90,13 @@
         });
       },
       methods:{
+        refreshImg:function(){
+          this.$http.get('user/identifyCode',layer,this).then(result => {
+            if(result && result.data) {
+              document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
+            }
+          })
+        },
         myPosting:function(){
           this.$router.push({path: 'myPosting'})
         },
@@ -110,7 +117,7 @@
         },
         update:function(){
           this.formData.updateContent =  this.formData.content
-          this.$http.post('/api/user/saveUpdateBlogs',this.formData,this.userInfo.token).then(result => {
+          this.$http.post('user/saveUpdateBlogs',this.formData,layer,this).then(result => {
             if(result){
               if(result.code == 1){
                 var _this = this
@@ -125,15 +132,26 @@
         }
       },
       created(){
-        this.userInfo = this.$store.state.session;
-        if(this.userInfo == null){
-          this.$router.push({path: '/'})
-        }
-        this.$http.get('/api/gateway/identifyCode?username='+this.userInfo.username).then(result => {
-          document.getElementById('identifyCodeImg').setAttribute('src','data:image/jpeg;base64,'+result.data);
+        let _this = this
+        layui.use('layer', function() {
+          var layer = layui.layer
+          _this.$http.get('user/checkUserStatus?needImg=1',layer,_this).then(result => {
+            if(result && result.data){
+              if(result.code == 1){
+                _this.userInfo = result.data.userTemp
+                if(JSON.stringify(_this.userInfo) == '{}'){
+                  _this.$router.push({path: 'firstPage'})
+                }
+                document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data.img);
+              }else{
+                layer.msg(result.message,{time:1500},function () {
+                  _this.$router.push({path: 'firstPage'})
+                })
+              }
+            }
+          })
         })
       }
-
     }
 </script>
 

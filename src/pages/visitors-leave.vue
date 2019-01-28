@@ -38,7 +38,7 @@
         name: "visitors-leave",
         data:function() {
           return {
-            userSession: this.$store.state.session,
+            userSession: {},
             sbData:{dealStatus:'0',content:''}
           }
         },
@@ -48,7 +48,7 @@
               if(!_this.sbData.content){
                 layer.msg("请先留言再提交",{time:1500})
               }else{
-                _this.$http.post('api/lobby/saveGuestReply',_this.sbData).then(result => {
+                _this.$http.post('lobby/saveGuestReply',_this.sbData,layer,_this).then(result => {
                   if(result.code ==1){
                     layer.msg('提交成功！谢谢留言',{time:2000,icon:1},function(){
                       _this.$router.push({path: 'firstPage'})
@@ -61,7 +61,7 @@
         },
       created(){
           if(this.userSession){
-            this.data = this.userSession.username
+            this.sbData.username = this.userSession.username
           }
       }
     }

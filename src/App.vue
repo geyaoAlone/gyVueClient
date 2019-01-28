@@ -4,7 +4,7 @@
     <div class="fly-header layui-bg-black">
       <div class="layui-container">
         <a class="fly-logo" href="">
-          <img src="http://120.79.240.9:8080/geyao_logoNew.png" alt="layui">
+          <img src="http://120.79.240.9:8080/gyLogo.png" alt="layui">
         </a>
         <ul class="layui-nav fly-nav layui-hide-xs">
           <li class="layui-nav-item layui-this">
@@ -20,14 +20,14 @@
 
         <ul class="layui-nav fly-nav-user">
           <!-- 未登入的状态 -->
-          <li class="layui-nav-item" v-if='userSession == null'>
+          <li class="layui-nav-item" v-if="JSON.stringify(userSession) == '{}'">
             <a class="iconfont icon-touxiang layui-hide-xs" href="javascript:;" @click="goLogin()"></a>
           </li>
-          <li class="layui-nav-item" v-if='userSession == null'>
+          <li class="layui-nav-item" v-if="JSON.stringify(userSession) == '{}'">
             <a href="javascript:;" @click="goLogin()">登入</a>
           </li>
           <!-- 登入后的状态 -->
-          <li class="layui-nav-item" v-if='userSession != null'>
+          <li class="layui-nav-item" v-if="JSON.stringify(userSession) != '{}'">
             <a class="fly-nav-avatar" href="javascript:;">
               <cite class="layui-hide-xs">{{userSession.nickname}}</cite>
               <i class="iconfont icon-renzheng layui-hide-xs"></i>
@@ -62,7 +62,7 @@ export default {
   name: 'App',
   data: function() {
     return{
-      userSession:this.$store.state.session
+      userSession:{}
     }
   },
   methods: {
@@ -78,12 +78,15 @@ export default {
         btn: ['确定','算了']
       }, function(){
         //_this.$store.commit('clearSession',this.userSession)
-        _this.$http.get('/api/user/logout?username='+_this.userSession.username,_this.userSession.token).then(result => {
+        _this.$http.get('user/logout',layer,_this).then(result => {
+          if(result){
             layer.msg('退出成功',{time:1000},function(){
-              _this.$store.commit('clearSession',this.userSession)
+              sessionStorage.removeItem('user')
+              localStorage.removeItem('token')
               this.userSession = {}
               window.location.reload();
             })
+          }
         });
 
       }, function(){
@@ -99,9 +102,24 @@ export default {
     }
   },
   mounted() {
-    layui.use('element', function() {
-      var element = layui.element;
-    });
+    var _this = this
+    layui.use(['element','layer'], function() {
+      var element = layui.element,layer = layui.layer
+      if(localStorage.getItem('token')){
+        _this.$http.get('user/checkUserStatus',layer,_this).then(result => {
+          if(result && result.code === 1){
+            _this.userSession = result.data.userTemp
+            sessionStorage.setItem("user",JSON.stringify(result.data.userTemp))
+          }else{
+            if(result.message){
+              layer.msg(result.message,{time:1500})
+            }else{
+              layer.msg('网站好像又有毛病了。葛耀修复中。。。',{time:1500})
+            }
+          }
+        })
+      }
+    })
   }
 }
 </script>

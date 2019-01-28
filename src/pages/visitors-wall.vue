@@ -8,16 +8,16 @@
           <li ><a href="javascript:;" @click="myInfo()">我的信息</a></li>
           <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
           <li><a href="javascript:;" @click="myPosting()">我的帖子</a></li>
-          <li class="layui-this" v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
+          <li class="layui-this" v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
         </ul>
 
-        <div v-if='userInfo != null' class="fly-column-right layui-hide-xs">
+        <div v-if="JSON.stringify(userInfo) != '{}'" class="fly-column-right layui-hide-xs">
           <!--<span class="fly-search"><i class="layui-icon"></i></span>-->
           <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
         </div>
-        <div v-if='userInfo != null' class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
+        <div v-if="JSON.stringify(userInfo) != '{}'" class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
           <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
         </div>
       </div>
@@ -52,7 +52,7 @@
             <a href="javascript:;" @click="sign(item.id)">标记为已处理</a>
           </div>
           <div class="visi_img" v-if="item.dealStatus =='1'">
-            <i class="layui-icon layui-icon-tips"></i>
+            <img src="http://120.79.240.9:8080/gz.png" style="max-width: 80px"/>
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@
         },
         sign:function(id){
           var _this = this
-          _this.$http.post("api/user/updateGuestReplyStatus",{username:_this.userInfo.username,id:id},_this.userInfo.token).then(result => {
+          _this.$http.post("user/updateGuestReplyStatus",{id:id},layer,_this).then(result => {
             if(result){
               if(result.code == 1 && result.data.modifiedCountAvailable){
                 layer.msg('标记成功',{time:1000},function () {
@@ -104,21 +104,21 @@
       },
       created(){
         var _this = this
-        _this.userInfo = _this.$store.state.session;
-        _this.$http.get("api/user/queryGuestReply?username="+_this.userInfo.username,_this.userInfo.token).then(result => {
-          if(result){
-            if(result.code == 1){
-              _this.guestReplyList = result.data
-            }else{
-              layer.msg(result.message,{time:1500},function () {
-                _this.$router.push({path:'/'})
-              })
+        _this.userInfo = JSON.parse(sessionStorage.getItem('user'))
+        layui.use('layer', function() {
+          var layer = layui.layer;
+          _this.$http.get("user/queryGuestReply", layer, _this).then(result => {
+            if (result) {
+              if (result.code == 1) {
+                _this.guestReplyList = result.data
+              } else {
+                layer.msg(result.message, {time: 1500}, function () {
+                  _this.$router.push({path: 'firstPage'})
+                })
+              }
             }
-          }
-
-
+          })
         })
-
       }
 
     }

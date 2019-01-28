@@ -50,9 +50,9 @@
               <li><a href="javascript:;" @click="myInfo()">我的信息</a></li>
               <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
               <li><a href="javascript:;" @click="myPosting()">我的帖子</a></li>
-              <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
-              <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
-              <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员管理</a></li>
+              <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
+              <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
+              <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员管理</a></li>
             </ul>
 
             <div v-if='userInfo != null' class="fly-column-right layui-hide-xs">
@@ -148,7 +148,7 @@
         data:function(){
           return{
             isVisitor:true,
-            userInfo:this.$store.state.session,
+            userInfo:{},
             ownCatalogue:[],
             ownCommentInfoList:[],
             countByAuthor:{}
@@ -173,28 +173,27 @@
         created(){
           var _this = this,layer,
               username = _this.$route.params.username,
-              url = "/api/lobby/getOwnCatalogue?"
+              url = "lobby/getOwnCatalogue?",
+              visitorInfo = JSON.parse(sessionStorage.getItem('user'))
           //访客进入
           if(username){
-            if(_this.userInfo && username == _this.userInfo.username){
+            if(visitorInfo && username == visitorInfo.username){
               this.isVisitor = false
             }
             url+="username="+username
           }else{
             //错误进入
-            if(!_this.userInfo){
+            if(!visitorInfo){
               _this.$router.push({path: 'firstPage'})
             }
             //自己进入自己主页
             _this.isVisitor = false
-            var username = _this.userInfo.username
-            url+="username="+username
+            url+="username="+visitorInfo.username
           }
 
           layui.use('layer', function() {
             layer = layui.layer;
-            var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000});
-            _this.$http.get(url).then(result => {
+            _this.$http.get(url,layer,_this).then(result => {
               if(result && result.code == 1){
                 _this.ownCatalogue = result.data.ownCatalogue
                 _this.userInfo = result.data.user
@@ -210,7 +209,6 @@
                 _this.ownCommentInfoList = list
               }
             })
-            layer.close(waiting)
           })
 
         }

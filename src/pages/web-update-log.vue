@@ -31,21 +31,26 @@
           }
         },
         created(){
-          this.$http.get('/api/gateway/queryUpdateBlogs').then(result => {
-            if(result && result.data){
-              result.data.forEach(content=>{
-                var technologyStr = content.technology
-                var technology = []
-                if(technologyStr){
-                  technology = technologyStr.split('；')
+          var _this = this
+          layui.use('layer', function() {
+            var layer = layui.layer
+            _this.$http.get('gateway/queryUpdateBlogs',layer,_this).then(result => {
+              console.info(result)
+              if(result && result.data){
+                result.data.forEach(content=>{
+                  var technologyStr = content.technology
+                  var technology = []
+                  if(technologyStr){
+                    technology = technologyStr.split('；')
+                  }
                   content.updateContent = fly.content(content.updateContent)
-                }
-                content.technology = technology
-              })
-              this.data= result.data;
-            }
-
+                  content.technology = technology
+                })
+                _this.data= result.data;
+              }
+            })
           })
+
         }
     }
 </script>

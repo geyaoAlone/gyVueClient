@@ -13,8 +13,8 @@
             <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
 
             <!-- 用户登入后显示 -->
-            <li v-if='userSession != null' class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="user/index.html">我的发表</a></li>
-            <li v-if='userSession != null' class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="user/index.html#collection">我的收藏</a></li>
+            <li v-if='userSession != null' class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="javascript:;" @click="myPosting()">我的发表</a></li>
+            <li v-if='userSession != null' class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="javascript:;" @click="myCollection()">我的收藏</a></li>
           </ul>
 
           <div v-if='userSession != null' class="fly-column-right layui-hide-xs">
@@ -69,10 +69,10 @@
                   <div class="detail_dst_operation" v-if="userSession != null">
                     <span v-if="userSession.username == detail.author" class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'del',true)">删帖</span>
 
-                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'stick',true)" v-if="userSession.authorities[0] =='ADMIN' && !detail.stick">置顶</span>
-                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'stick',false)" v-if="userSession.authorities[0] =='ADMIN' && detail.stick">置顶个屁</span>
-                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',true)" v-if="userSession.authorities[0] =='ADMIN' && !detail.best">加精</span>
-                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',false)" v-if="userSession.authorities[0] =='ADMIN' && detail.best">加鸡毛精</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'stick',true)" v-if="userSession.authority =='ADMIN' && !detail.stick">置顶</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'stick',false)" v-if="userSession.authority =='ADMIN' && detail.stick">置顶个屁</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',true)" v-if="userSession.authority =='ADMIN' && !detail.best">加精</span>
+                    <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'best',false)" v-if="userSession.authority =='ADMIN' && detail.best">加鸡毛精</span>
 
                     <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'publicity',true)" v-if="userSession.username == detail.author && !detail.publicity">公开</span>
                     <span class="layui-btn layui-btn-xs jie-admin" @click="dealThisDetail(detail.serialNumber,'publicity',false)" v-if="userSession.username == detail.author && detail.publicity">藏起来</span>
@@ -237,7 +237,7 @@
         name: "detail",
         data: function() {
           return {
-            userSession: this.$store.state.session,
+            userSession: JSON.parse(sessionStorage.getItem('user')),
             detail:{},
             heatData:[],
             content:'',
@@ -246,21 +246,32 @@
           }
         },
         methods:{
+          myCollection:function(){
+            this.$router.push({path: 'myCollection'})
+          },
+          myPosting:function(){
+            this.$router.push({path: 'myPosting'})
+          },
           add:function(){
             this.$router.push({path: 'add'})
           },
           otherDetail:function(id){
-            this.$http.get('/api/lobby/queryConnotationDetail?serialNumber='+id).then(result => {
-              console.info(result)
-              var data = result.data
-              data.detailData.content = fly.content(data.detailData.content)
-              this.detail = data.detailData
-              this.heatData = data.heatData
-              data.commentList.forEach(comment=>{
-                comment.replyContent = fly.content(comment.replyContent)
-              });
-              this.commentList = data.commentList;
-              window.scrollTo({"behavior": "smooth", "top": 0})
+            this.$http.get('lobby/queryConnotationDetail?serialNumber='+id,layer,this).then(result => {
+              if(result){
+                if(result.data && result.code === 1){
+                  var data = result.data
+                  data.detailData.content = fly.content(data.detailData.content)
+                  this.detail = data.detailData
+                  this.heatData = data.heatData
+                  data.commentList.forEach(comment=>{
+                    comment.replyContent = fly.content(comment.replyContent)
+                  });
+                  this.commentList = data.commentList;
+                  window.scrollTo({"behavior": "smooth", "top": 0})
+                }else{
+                  layer.msg(result.message,{time:1000})
+                }
+              }
             });
           },
           queryType:function (e,type) {
@@ -284,15 +295,21 @@
                                 defendant : this.detail.author
               }
               var _this = this
-              this.$http.post('api/user/saveComment',comment,this.userSession.token).then(result => {
-                result.data.forEach(comment=>{
-                  comment.replyContent = fly.content(comment.replyContent)
-                });
-                this.commentList =result.data
-                layer.msg("评论成功",{time:1000},function(){
-                  _this.content = ''
-                  _this.detail.commentTimes += 1
-                })
+              this.$http.post('user/saveComment',comment,layer,this).then(result => {
+                if(result){
+                  if(result.data && result.code === 1){
+                    result.data.forEach(comment=>{
+                      comment.replyContent = fly.content(comment.replyContent)
+                    });
+                    this.commentList =result.data
+                    layer.msg("评论成功",{time:1000},function(){
+                      _this.content = ''
+                      _this.detail.commentTimes += 1
+                    })
+                  }else{
+                    layer.msg(result.message,{time:1000})
+                  }
+                }
               });
             }else{
               layer.msg("请先登陆",{time:1000})
@@ -303,11 +320,11 @@
             if(dom.hasClass('zanok')){
               layer.msg("您已点过赞",{time:1000})
             }else{
-              var URL = "/api/lobby/updateThumbUp?id="+id+"&serialNumber="+this.detail.serialNumber
+              var URL = "lobby/updateThumbUp?id="+id+"&serialNumber="+this.detail.serialNumber
               if(this.userSession){
                 URL += "&username="+this.userSession.username
               }
-              this.$http.get(URL).then(result => {
+              this.$http.get(URL,layer,this).then(result => {
                 if(result.code ==1){
                   dom.addClass('zanok');
                   this.commentList[i].thumbUpTimes += 1
@@ -322,7 +339,7 @@
           },
           reply:function (replyer) {
             if(this.userSession){
-              this.content += "@"+replyer
+              this.content += "@"+replyer+' '
             }else{
               layer.msg("请先登陆",{time:1000})
             }
@@ -331,7 +348,7 @@
             if(this.userSession){
               let _this = this
               layer.confirm("确定删除此回帖？",{icon:3},function () {
-                _this.$http.get('/api/user/delComment?id='+id+'&serialNumber='+_this.detail.serialNumber,_this.userSession.token).then(result => {
+                _this.$http.get('user/delComment?id='+id+'&serialNumber='+_this.detail.serialNumber,layer,_this).then(result => {
                   if(result.data != null){
                     layer.msg("删除成功",{time:1000})
                     _this.commentList = result.data
@@ -351,8 +368,8 @@
                 str = '确定删除此帖吗？'
               }
               var conf =layer.confirm(str,{icon:3},function () {
-                _this.$http.get('/api/user/dealArticle?id=' + id + '&type=' + type + '&val=' + value,_this.userSession.token).then(result => {
-                  if (result.code == 1) {
+                _this.$http.get('user/dealArticle?id=' + id + '&type=' + type + '&val=' + value,layer,_this).then(result => {
+                  if (result.code && result.code == 1) {
                     if('del' == type) {
                       layer.msg('删除成功',{time:1000},function(){
                         _this.$router.push({path: '/'})
@@ -361,6 +378,8 @@
                       _this.detail[type] = value
                       layer.close(conf)
                     }
+                  }else{
+                    layer.msg('删除失败',{time:1000})
                   }
                 })
               });
@@ -376,7 +395,7 @@
             this.$router.push({path: 'edit',query:{id:id}})
           },
           saveFavorite:function (serialNumber) {
-            this.$http.post('/api/user/saveFavorite',{serialNumber:serialNumber,username:this.userSession.username},this.userSession.token).then(result => {
+            this.$http.post('user/saveFavorite',{serialNumber:serialNumber,username:this.userSession.username},layer,this).then(result => {
               if(result){
                 if(result.code == 1){
                   layer.msg('恭喜！收藏成功',{time:1000})
@@ -403,12 +422,8 @@
           let _this = this
           layui.use('layer', function() {
             layer = layui.layer;
-            var URL = '/api/lobby/queryConnotationDetail?serialNumber='+_this.$route.query.id
-            if(_this.userSession){
-              URL +='&username='+_this.userSession.username
-            }
-            var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000});
-            _this.$http.get(URL).then(result => {
+            var URL = 'lobby/queryConnotationDetail?serialNumber='+_this.$route.query.id
+            _this.$http.get(URL,layer,_this).then(result => {
 
               if(result && result.data){
 
@@ -422,13 +437,12 @@
                 _this.commentList = data.commentList
 
               }
-              layer.close(waiting)
             });
 
             var name = _this.$route.query.name;
             if(name){
               _this.replyName = name
-              _this.content = '@'+name
+              _this.content = '@'+name+' '
             }
           });
         }

@@ -8,16 +8,16 @@
           <li ><a href="javascript:;" @click="myInfo()">我的信息</a></li>
           <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
           <li><a href="javascript:;" @click="myPosting()">我的帖子</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
-          <li class="layui-this" v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员管理</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
+          <li class="layui-this" v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/adminRegister">会员管理</a></li>
         </ul>
 
-        <div v-if='userInfo != null' class="fly-column-right layui-hide-xs">
+        <div v-if="JSON.stringify(userInfo) != '{}'" class="fly-column-right layui-hide-xs">
           <!--<span class="fly-search"><i class="layui-icon"></i></span>-->
           <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
         </div>
-        <div v-if='userInfo != null' class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
+        <div v-if="JSON.stringify(userInfo) != '{}'" class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
           <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
         </div>
       </div>
@@ -123,7 +123,7 @@
         name: "admin-register",
       data:function () {
         return{
-          userInfo:this.$store.state.session,
+          userInfo:JSON.parse(sessionStorage.getItem('user')),
           registerInfo:{sex:"1"},
           userList:[]
         }
@@ -133,31 +133,18 @@
           this.$router.push({path: 'myPosting'})
         },
         takecheckimg:function(){
-          var username = this.registerInfo.username;
-          if(!username){
-            layer.msg('先填用户名',{time:1500},function(){
-              $('#L_username').focus();
-            })
-            return
-          }else{
-            this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
-              document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-            })
-          }
+          this.$http.get('gateway/identifyCode',layer,this).then(result => {
+            if(result && result.data) {
+              document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
+            }
+          })
         },
         refreshImg:function(){
-          var username = this.registerInfo.username;
-          if(username){
-            this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
-              if(result.result =='0'){
-                layer.msg(result.failReason,{time:1500},function(){
-                  $('#username').focus();
-                })
-              }else{
-                document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-              }
-            })
-          }
+          this.$http.get('user/identifyCode',layer,this).then(result => {
+            if(result && result.data) {
+              document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
+            }
+          })
         },
         add:function(){
           this.$router.push({path: 'add'})
@@ -178,8 +165,7 @@
           var _this = this
           layer.confirm("确定注册吗？",{icon:1},function(){
             var data = _this.registerInfo
-            _this.$http.post('api/user/adminSignUp',data,_this.userInfo.token).then(result => {
-              console.info(result)
+            _this.$http.post('user/adminSignUp',data,layer,_this).then(result => {
               if(result){
                 if(result.code == 1 && result.data){
                   layer.msg('恭喜！注册成功',{time:1000},function () {
@@ -200,7 +186,7 @@
         },
         updateUserStatus:function (username,status,i) {
           var _this = this
-          _this.$http.get('api/user/updateUserStatus?operator='+_this.userInfo.username+'&username='+username+'&status='+status,_this.userInfo.token).then(result => {
+          _this.$http.get('user/updateUserStatus?operator='+_this.userInfo.username+'&username='+username+'&status='+status,layer,_this).then(result => {
             if(result) {
               if (result.code == 1) {
                 layer.msg('操作成功',{time:1000},function () {
@@ -227,15 +213,14 @@
       created(){
         let _this = this,table
         layui.use(['layer','table'], function() {
-          var layer = layui.layer
-          table = layui.table;
-          var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000});
-          if((!_this.userInfo) || _this.userInfo.authorities[0] !='ADMIN'){
+          var layer = layui.layer,table = layui.table
+
+          if((!_this.userInfo) || _this.userInfo.authority !='ADMIN'){
             layer.msg('抱歉！您无权访问或账户已退出，请重新登陆',{time:2000},function(){
               _this.$router.push({path: 'login'})
             })
           }
-          _this.$http.get("api/user/getAllUserInfo?username="+_this.userInfo.username,_this.userInfo.token).then(result => {
+          _this.$http.get("user/getAllUserInfo",layer,_this).then(result => {
             if(result){
               if(result.code == 1 && result.data){
                 _this.userList = result.data
@@ -250,11 +235,10 @@
               }
             }
           })
-          layer.close(waiting)
           $('#register').on('click', function () {
             layer.confirm("确定注册吗？",{icon:1},function(){
               var data = _this.registerInfo
-              _this.$http.post('api/user/adminSignUp',data,_this.userInfo.token).then(result => {
+              _this.$http.post('user/adminSignUp',data,layer,_this).then(result => {
                 console.info(result)
                 if(result){
                   if(result.code == 1 && result.data){
@@ -288,4 +272,9 @@
 
 <style scoped>
 
+  .layui-table-cell img{
+    width: 30px;
+    margin: 0 auto;
+    display: block;
+  }
 </style>

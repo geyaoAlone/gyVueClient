@@ -27,7 +27,7 @@
                   <div class="layui-form-item ">
                     <label for="L_vercode" class="layui-form-label">人类验证</label>
                     <div class="layui-input-inline">
-                      <input type="text" v-model="loginInfo.identifyCode" @click="takecheckimg()" id="L_vercode" name="vercode" placeholder="请写出后面的答案" class="layui-input">
+                      <input type="text" v-model="loginInfo.identifyCode" id="L_vercode" name="vercode" placeholder="请写出后面的答案" class="layui-input">
                     </div>
                     <div class="login_img">
                       <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
@@ -63,34 +63,12 @@
           goLogin:function () {
             this.$router.push({path: 'login'})
           },
-          takecheckimg:function(){
-            var username = this.loginInfo.username;
-            console.info(username)
-            if(!username){
-              layer.msg('你倒是填用户名啊！',{time:1500},function(){
-                $('#username').focus();
-              })
-              return
-            }
-            this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
-                document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-            })
-
-          },
           refreshImg:function(){
-            var username = this.loginInfo.username;
-            if(username){
-              this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
-                console.info(result)
-                if(result.result =='0'){
-                  layer.msg(result.failReason,{time:1500},function(){
-                    $('#username').focus();
-                  })
-                }else{
-                  document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-                }
-              })
-            }
+            this.$http.get('gateway/identifyCode',layer,this).then(result => {
+              if(result && result.data){
+                document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
+              }
+            })
           },
           login:function(){
             let _this = this
@@ -112,34 +90,38 @@
               })
               return
             }
-            this.$http.post('/api/gateway/login',this.loginInfo).then(result => {
-              console.info(result)
+            this.$http.post('gateway/login',this.loginInfo,layer,this).then(result => {
               if(result.code === 1){
-                let token = result.data;
+                localStorage.setItem('token',result.data)
                 layer.msg('登陆成功！',{time:1000},function(){
-                  _this.$http.get('/api/user/getUserInfo?username='+_this.loginInfo.username,token).then(result => {
-                    if(result.code == 0){
-                      layer.msg('拉取客户信息失败！请重新登录'
-                        ,{time:1500}
-                        ,function () {
-                          _this.$http.get('/api/gateway/identifyCode?username='+_this.loginInfo.username).then(result => {
-                              document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-                          })
-                        }
-                      );
-                    }else{
-                      let session = result.data;
-                      console.info(session)
-                      session.token = token
-                      _this.$store.commit('setSession',session);
-                      window.location.reload();
+                  _this.$http.get('user/checkUserStatus',layer,_this).then(result => {
+                    if(result){
+                      if(result.code != 1){
+                        layer.msg('拉取客户信息失败！请重新登录'
+                          ,{time:1500}
+                          ,function () {
+                            _this.$http.get('user/identifyCode',layer,_this).then(result => {
+                              if(result && result.data) {
+                                document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
+                              }
+                            })
+                          }
+                        );
+                      }else{
+                        sessionStorage.setItem("user",JSON.stringify(result.data.userTemp))
+                        window.location.reload();
+                        _this.$router.push({path: 'firstPage'})
+                      }
                     }
                   })
                 })
               }else{
-                layer.msg(result.message,{time:2000},function () {
-                  this.$http.get('/api/gateway/identifyCode?username='+_this.loginInfo.username).then(result => {
-                    document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
+                layer.msg(result.message,{time:1500},function () {
+                  _this.$http.get('gateway/identifyCode',layer,_this).then(result => {
+                    _this.loginInfo.identifyCode = ''
+                    if(result && result.data){
+                      document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
+                    }
                   })
                 });
               }
@@ -147,10 +129,26 @@
           }
         },
         created(){
-          var session = this.$store.state.session;
-          if(session){
-            this.$router.push({path: '/'})
-          }
+          let _this = this
+          layui.use('layer', function() {
+            var layer = layui.layer, info = sessionStorage.getItem('user'), token = localStorage.getItem('token'),
+              waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000})
+            if(info){
+              sessionStorage.removeItem('user')
+            }
+            if(token){
+              localStorage.removeItem('token')
+            }
+            if(info && token){
+              window.location.reload();
+            }
+            _this.$http.get('gateway/identifyCode',layer,_this).then(result => {
+              if(result && result.data){
+                document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
+              }
+            })
+            layer.close(waiting)
+          })
         }
     }
 </script>

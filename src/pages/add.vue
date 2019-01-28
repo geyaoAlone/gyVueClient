@@ -40,13 +40,13 @@
                         <input type="checkbox" name="switch" lay-skin="switch" lay-filter="publicity" lay-text="是|否" checked>
                       </div>
                     </div>
-                    <div class="layui-col-md3" v-if="userSession.authorities[0] =='ADMIN'">
+                    <div class="layui-col-md3" v-if="userSession.authority =='ADMIN'">
                       <label class="layui-form-label">是否精帖</label>
                       <div class="layui-input-block">
                         <input type="checkbox" name="switch" lay-skin="switch" lay-filter="best" lay-text="是|否" >
                       </div>
                     </div>
-                    <div class="layui-col-md3" v-if="userSession.authorities[0] =='ADMIN'">
+                    <div class="layui-col-md3" v-if="userSession.authority =='ADMIN'">
                       <label class="layui-form-label">是否置顶</label>
                       <div class="layui-input-block">
                         <input type="checkbox" name="switch" lay-skin="switch" lay-filter="stick" lay-text="是|否" >
@@ -109,18 +109,17 @@
       name: "add",
       data: function() {
         return{
-          userSession:this.$store.state.session,
-          formData:{username:'',type:'',title:'',content:'',vercode:'',publicity:true,best:false,endTime:'',stick:false}
+          userSession:JSON.parse(sessionStorage.getItem('user')),
+          formData:{type:'',title:'',content:'',vercode:'',publicity:true,best:false,endTime:'',stick:false}
         }
       },
       methods:{
         refreshImg:function(){
-          var username = this.userSession.username;
-          if(username){
-            this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
-              document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-            })
-          }
+          this.$http.get('user/identifyCode',layer,this).then(result => {
+            if(result && result.data) {
+              document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
+            }
+          })
         },
         add:function(){
           if(!this.formData.type){
@@ -139,7 +138,7 @@
             });
           }else{
             var _this = this;
-            _this.$http.post('api/user/saveNewArticle',_this.formData,_this.userSession.token).then(result => {
+            _this.$http.post('user/saveNewArticle',_this.formData,layer,_this).then(result => {
               if(result){
                 if(result.code == 1 && result.data){
                   var _id = result.data;
@@ -193,13 +192,24 @@
 
       },
       created() {
-        let info = this.$store.state.session
-        if(info == null){
-            this.$router.push({path: '/'})
-        }
-        this.formData.username = info.username;
-        this.$http.get('/api/gateway/identifyCode?username='+info.username).then(result => {
-          document.getElementById('identifyCodeImg').setAttribute('src','data:image/jpeg;base64,'+result.data);
+        let _this = this
+        layui.use('layer', function() {
+          var layer = layui.layer
+          _this.$http.get('user/checkUserStatus?needImg=1',layer,_this).then(result => {
+            if(result && result.data){
+              if(result.code == 1){
+                _this.userSession = result.data.userTemp
+                if(!_this.userSession){
+                  _this.$router.push({path: 'firstPage'})
+                }
+                document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data.img);
+              }else{
+                layer.msg(result.message,{time:1500},function () {
+                  _this.$router.push({path: 'firstPage'})
+                })
+              }
+            }
+          })
         })
       }
     }

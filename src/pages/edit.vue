@@ -64,10 +64,10 @@
 <script>
   import {fly} from '../util/editUtil.js';
   export default {
-    name: "add",
+    name: "edit",
     data: function() {
       return{
-        userSession:this.$store.state.session,
+        userSession:JSON.parse(sessionStorage.getItem('user')),
         formData:{}
       }
     },
@@ -76,12 +76,11 @@
         this.$router.push({path: 'add'})
       },
       refreshImg:function(){
-        var username = this.userSession.username;
-        if(username){
-          this.$http.get('/api/gateway/identifyCode?username='+username).then(result => {
-            document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
-          })
-        }
+        this.$http.get('gateway/identifyCode',layer,this).then(result => {
+          if(result && result.data) {
+            document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
+          }
+        })
       },
       update:function(){
         if(!this.formData.type){
@@ -100,15 +99,17 @@
           });
         }else{
           var _this = this;
-          _this.$http.post('api/user/updateArticle',_this.formData,_this.userSession.token).then(result => {
+          _this.$http.post('user/updateArticle',_this.formData,layer,_this).then(result => {
             if(result.code == 1){
               layer.msg('恭喜！修改成功',{time:1000},function(){
                 _this.$router.push({path: 'detail',query:{id:_this.formData.serialNumber}})
               })
             }else{
               layer.msg(result.message,{time:1000},function(){
-                _this.$http.get('/api/gateway/identifyCode?username='+_this.formData.author).then(result => {
-                  document.getElementById('identifyCodeImg').setAttribute( 'src','data:image/jpeg;base64,'+result.data);
+                _this.$http.get('gateway/identifyCode',layer,_this).then(result => {
+                  if(result && result.data) {
+                    document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
+                  }
                 })
               })
             }
@@ -126,27 +127,40 @@
       });
     },
     created() {
-      let info = this.$store.state.session
-      if(info == null){
-        this.$router.push({path: '/'})
-      }
-      var id = this.$route.query.id;
-      if(id){
-        this.$http.get('/api/user/queryEditArticle?id='+id,info.token).then(result => {
-          console.info(result.data)
-          this.formData = result.data
-          var type = this.formData.type,_this = this
-          layui.use('form',function(){
-            var form = layui.form
-            form.val("edit",{"type": type})
-            form.on('select(type)', function(data){
-              _this.formData.type = data.value
-            });
-          })
+      let _this = this
+      layui.use(['layer','form'], function () {
+        var layer = layui.layer,form = layui.form
+
+        _this.$http.get('user/checkUserStatus?needImg=1',layer,_this).then(result => {
+          if (result && result.data) {
+            if (result.code == 1) {
+              _this.userSession = result.data.userTemp
+              if (!_this.userSession) {
+                _this.$router.push({path: 'firstPage'})
+              }
+              document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data.img);
+            } else {
+              layer.msg(result.message, {time: 1500}, function () {
+                _this.$router.push({path: 'firstPage'})
+              })
+            }
+          }
         })
-      }
-      this.$http.get('/api/gateway/identifyCode?username='+info.username).then(result => {
-        document.getElementById('identifyCodeImg').setAttribute('src','data:image/jpeg;base64,'+result.data);
+
+        var id = _this.$route.query.id;
+        if(id){
+          _this.$http.get('user/queryEditArticle?id='+id,layer,_this).then(result => {
+            if (result && result.data) {
+              _this.formData = result.data
+              var type = _this.formData.type
+              form.val("edit", {"type": type})
+              form.on('select(type)', function (data) {
+                _this.formData.type = data.value
+              });
+            }
+          })
+        }
+
       })
     }
   }

@@ -217,8 +217,8 @@
       name: "first-page",
       data: function() {
         return{
-          userSession:this.$store.state.session,
-          queryUrl:"/api/lobby/queryCatalogueList?",
+          userSession:JSON.parse(sessionStorage.getItem('user')),
+          queryUrl:"lobby/queryCatalogueList?",
           catalogueList:[],
           stickList:[],
           queryParams:{isEnd:'',orderType:'id',isbest:''},
@@ -280,9 +280,7 @@
           if(this.queryParams.isbest){
             url += '&best='+this.queryParams.isbest
           }
-          //url += '&username='+this.userSession.username
-          this.$http.get(url).then(result => {
-            console.info(result)
+          this.$http.get(url,layer,this).then(result => {
             this.catalogueList = result.data.catalogueList
           });
         },
@@ -297,8 +295,7 @@
             dom.addClass('layui-this');
           }
           this.type = type
-          this.$http.get(this.queryUrl+'type='+type).then(result => {
-            console.info(result)
+          this.$http.get(this.queryUrl+'type='+type,layer,this).then(result => {
             this.catalogueList = result.data.catalogueList
             this.stickList = result.data.stickList
           });
@@ -317,7 +314,7 @@
           var start = this.catalogueList.length + 1
           var end = this.catalogueList.length + 15
           var queryCountStr = start+','+end
-          this.$http.get(url+"&queryCountStr="+queryCountStr).then(result => {
+          this.$http.get(url+"&queryCountStr="+queryCountStr,layer,this).then(result => {
             this.catalogueList = this.catalogueList.concat(result.data.catalogueList)
             if(result.data.catalogueList.length < 15){
               $('.laypage-next').hide()
@@ -333,18 +330,18 @@
         let _this = this
         layui.use('layer', function() {
           layer = layui.layer;
-          var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000});
           var type = _this.$route.params.type
           var url = _this.queryUrl + 'orderType=id'
           if (type) {
             url += '&type=' + type;
           }
-          _this.$http.get(url).then(result => {
-            _this.catalogueList = result.data.catalogueList
-            _this.stickList = result.data.stickList
-            _this.countByAuthor = result.data.countByAuthor
+          _this.$http.get(url,layer,_this).then(result => {
+            if(result && result.data){
+              _this.catalogueList = result.data.catalogueList
+              _this.stickList = result.data.stickList
+              _this.countByAuthor = result.data.countByAuthor
+            }
           })
-          layer.close(waiting)
         })
       }
   }

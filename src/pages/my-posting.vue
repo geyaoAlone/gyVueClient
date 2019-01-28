@@ -8,21 +8,21 @@
           <li ><a href="javascript:;" @click="myInfo()">我的信息</a></li>
           <li><a href="javascript:;" @click="myMessage()">我的消息</a></li>
           <li class="layui-this"><a href="javascript:;" @click="myPosting()">我的帖子</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
-          <li v-if="userInfo != null && userInfo.authorities[0] =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/visitorsWall">查看留言</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/addWebUpdate">添加更新</a></li>
+          <li v-if="JSON.stringify(userInfo) != '{}' && userInfo.authority =='ADMIN'"><a href="#/adminRegister">会员注册</a></li>
         </ul>
 
-        <div v-if='userInfo != null' class="fly-column-right layui-hide-xs">
+        <div v-if="JSON.stringify(userInfo) != '{}'" class="fly-column-right layui-hide-xs">
           <!--<span class="fly-search"><i class="layui-icon"></i></span>-->
           <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
         </div>
-        <div v-if='userInfo != null' class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
+        <div v-if="JSON.stringify(userInfo) != '{}'" class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
           <a href="javascript:;" @click="add()" class="layui-btn">发表新帖</a>
         </div>
       </div>
     </div>
-    <div class="fly-panel fly-panel-user" pad20>
+    <div class="fly-panel fly-panel-user post_widt" pad20>
       <div class="layui-tab layui-tab-brief" lay-filter="user">
         <ul class="layui-tab-title" id="LAY_mine">
           <li data-type="mine-jie" lay-id="index" class="layui-this">我发的帖（<span>{{myCatalogueCount}}</span>）</li>
@@ -51,7 +51,7 @@
       name: "my-posting",
       data:function () {
         return{
-          userInfo:{},
+          userInfo:JSON.parse(sessionStorage.getItem('user')),
           myCatalogueList:[],
           myCatalogueCount:'0',
           myCollectionCount:'0'
@@ -86,26 +86,32 @@
       },
       created(){
         var _this = this
-        this.userInfo = this.$store.state.session;
-        if(!this.userInfo){
-          layer.msg('抱歉，您无法访问',{time:1000},function () {
-            _this.$router.push({path: 'firstPage'})
-          })
-        }else {
-          _this.$http.get("api/user/queryMyArticle?username="+this.userInfo.username, this.userInfo.token).then(result => {
-            if(result){
-              if(result.code == 1 && result.data){
-                this.myCatalogueList = result.data.myCatalogue
-                this.myCatalogueCount = result.data.statistics[0].cataCount
-                this.myCollectionCount = result.data.statistics[0].favorCount
+        layui.use('layer', function() {
+          layer = layui.layer;
+          if(!_this.userInfo){
+            layer.msg('抱歉，您无法访问',{time:1000},function () {
+              _this.$router.push({path: 'firstPage'})
+            })
+          }else {
+            _this.$http.get('user/queryMyArticle',layer,_this).then(result => {
+              if(result){
+                if(result.code == 1 && result.data){
+                  _this.myCatalogueList = result.data.myCatalogue
+                  _this.myCatalogueCount = result.data.statistics[0].cataCount
+                  _this.myCollectionCount = result.data.statistics[0].favorCount
+                }
               }
-            }
-          })
-        }
+            })
+          }
+        })
       }
     }
 </script>
 
 <style scoped>
 
+  .post_widt{
+    width: 86%;
+    margin: 0 auto;
+  }
 </style>
