@@ -3,7 +3,7 @@
 import axios from 'axios'
 //import { Indicator } from 'mint-ui';
 
-const BASE_URL = 'http://39.108.221.60:9500/api/' //''// 'http://localhost:9500/api/';
+const BASE_URL = 'https://39.108.221.60:8443/api/';// //'https://10.10.10.142:8443/api/'
 axios.interceptors.request.use(config => {
     // loading opend
     //Indicator.open('加载中...');
@@ -20,8 +20,9 @@ axios.interceptors.response.use(response => {
 
 
 function checkStatus (response,layer,_this,waiting) {
-    // loading close
-    //Indicator.close();
+  if(waiting == null){
+    return response
+  }
     try {
       if(response.headers.authorization){
         localStorage.token = response.headers.authorization
@@ -109,5 +110,13 @@ export default {
           "Authorization":'Bearer '+ localStorage.getItem('token')
         }
       }).then( response => checkStatus(response,layer,_this,waiting))
+    },
+    simpleGet(url){
+      return axios({
+        method: 'get',
+        baseURL: BASE_URL,
+        url,
+        timeout: 15000
+      }).then( response => checkStatus(response,null,null,null))
     }
 }

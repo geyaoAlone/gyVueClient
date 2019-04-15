@@ -50,6 +50,7 @@
                     <input type="text" id="technology" v-model="formData.technology" name="technology" placeholder="请填写本次更新所使用技术点用;隔开" class="layui-input" style="width: 500px">
                   </div>
                 </div>
+                <!--
                   <div class="layui-form-item">
                     <label for="L_vercode" class="layui-form-label">人类验证</label>
                     <div class="layui-input-inline">
@@ -59,8 +60,9 @@
                       <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
                     </div>
                   </div>
-                  <div class="layui-form-item">
-                    <a class="layui-btn" @click="update()">确认提交</a>
+                -->
+                  <div class="layui-form-item" id="checkEvent"  @click = "update()">
+                    <a class="layui-btn" @click.stop = "checkCode()">确认提交</a>
                   </div>
               </div>
             </div>
@@ -73,6 +75,7 @@
 
 <script>
     import {fly} from '../util/editUtil.js';
+    import {validateCode} from '../util/validateCode.js';
     export default {
       name: "add-web-update",
       data:function () {
@@ -90,12 +93,8 @@
         });
       },
       methods:{
-        refreshImg:function(){
-          this.$http.get('user/identifyCode',layer,this).then(result => {
-            if(result && result.data) {
-              document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
-            }
-          })
+        checkCode:function(){
+          validateCode.showDom(this)
         },
         myPosting:function(){
           this.$router.push({path: 'myPosting'})
@@ -135,14 +134,14 @@
         let _this = this
         layui.use('layer', function() {
           var layer = layui.layer
-          _this.$http.get('user/checkUserStatus?needImg=1',layer,_this).then(result => {
+          _this.$http.get('user/checkUserStatus',layer,_this).then(result => {
             if(result && result.data){
               if(result.code == 1){
                 _this.userInfo = result.data.userTemp
                 if(JSON.stringify(_this.userInfo) == '{}'){
                   _this.$router.push({path: 'firstPage'})
                 }
-                document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data.img);
+                //document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data.img);
               }else{
                 layer.msg(result.message,{time:1500},function () {
                   _this.$router.push({path: 'firstPage'})

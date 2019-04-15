@@ -26,6 +26,9 @@
           <li class="layui-nav-item" v-if="JSON.stringify(userSession) == '{}'">
             <a href="javascript:;" @click="goLogin()">登入</a>
           </li>
+          <li class="layui-nav-item" v-if="JSON.stringify(userSession) == '{}'">
+            <a href="javascript:;" @click="goRegister()">注册</a>
+          </li>
           <!-- 登入后的状态 -->
           <li class="layui-nav-item" v-if="JSON.stringify(userSession) != '{}'">
             <a class="fly-nav-avatar" href="javascript:;">
@@ -99,6 +102,8 @@ export default {
       this.$router.push({path: 'myInfo'})
     },myMessage:function(){
       this.$router.push({path: 'myMessage'})
+    },goRegister:function(){
+      this.$router.push({path: 'userRegister'})
     }
   },
   mounted() {

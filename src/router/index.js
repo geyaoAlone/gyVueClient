@@ -15,6 +15,7 @@ import AddWebUpdate from '../pages/add-web-update'
 import AdminRegister from '../pages/admin-register'
 import VisitorsWall from '../pages/visitors-wall'
 import MyPosting from '../pages/my-posting'
+import UserRegister from  '../pages/user-register'
 Vue.use(Router)
 
 export default new Router({
@@ -84,6 +85,10 @@ export default new Router({
       path: '/visitorsWall',
       name: 'visitors-wall',
       component: VisitorsWall
+    },{
+      path:'/userRegister',
+      name:'user-register',
+      component:UserRegister
     }
 
   ]

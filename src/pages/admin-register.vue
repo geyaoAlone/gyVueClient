@@ -54,6 +54,7 @@
                     <input type="text" id="L_email" name="email" class="layui-input" v-model="registerInfo.email">
                   </div>
                 </div>
+                <!--
                 <div class="layui-form-item">
                   <label for="L_vercode" class="layui-form-label">人类验证</label>
                   <div class="layui-input-inline">
@@ -63,9 +64,10 @@
                     <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
                   </div>
                 </div>
-                <div class="layui-form-item">
+                -->
+                <div class="layui-form-item" id="checkEvent"  @click = "register()">
                   <!--<button class="layui-btn" @click="register()">立即注册</button>-->
-                  <button class="layui-btn" id="register">立即注册</button>
+                  <button class="layui-btn" @click.stop = "checkCode()">立即注册</button>
                 </div>
               </div>
             </div>
@@ -119,6 +121,7 @@
 </template>
 
 <script>
+  import {validateCode} from '../util/validateCode.js';
     export default {
         name: "admin-register",
       data:function () {
@@ -132,19 +135,8 @@
         myPosting:function(){
           this.$router.push({path: 'myPosting'})
         },
-        takecheckimg:function(){
-          this.$http.get('gateway/identifyCode',layer,this).then(result => {
-            if(result && result.data) {
-              document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
-            }
-          })
-        },
-        refreshImg:function(){
-          this.$http.get('user/identifyCode',layer,this).then(result => {
-            if(result && result.data) {
-              document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
-            }
-          })
+        checkCode : function(){
+          validateCode.showDom(this)
         },
         add:function(){
           this.$router.push({path: 'add'})
@@ -162,27 +154,29 @@
           this.$router.push({path: 'myCollection'})
         },
         register:function(){
-          var _this = this
-          layer.confirm("确定注册吗？",{icon:1},function(){
-            var data = _this.registerInfo
-            _this.$http.post('user/adminSignUp',data,layer,_this).then(result => {
-              if(result){
-                if(result.code == 1 && result.data){
-                  layer.msg('恭喜！注册成功',{time:1000},function () {
-                    _this.registerInfo = {}
-                    _this.userList = _this.userList.unshift(result.data)
-                    console.info(_this.userList)
-                    var gao = _this.$refs.user.offsetTop
-                    window.scrollTo({"behavior": "smooth", "top": gao})
-                  })
+          let _this = this
+          _this.$http.post('user/adminSignUp',_this.registerInfo,layer,_this).then(result => {
+            if(result){
+              if(result.code == 1 && result.data){
+                layer.msg('恭喜！注册成功',{time:1000},function () {
+                  _this.registerInfo = {}
+                  var newUser = result.data
+                  _this.userList.unshift(newUser)
+                  console.info(_this.userList)
+                  var gao = _this.$refs.user.offsetTop
+                  window.scrollTo({"behavior": "smooth", "top": gao})
+                  setTimeout(()=> {
+                    table.init('user-table', {page: true,limit: 10})
+                  },100)
+                })
 
-                }else{
-                  layer.msg(result.message,{time:1300})
-                }
+              }else{
+                layer.msg(result.message,{time:1300},function () {
+                  layer.closeAll()
+                })
               }
+            }
           });
-
-        })
         },
         updateUserStatus:function (username,status,i) {
           var _this = this

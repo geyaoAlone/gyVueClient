@@ -38,7 +38,7 @@
                       <textarea id="L_content" v-model="formData.content" name="content"placeholder="详细描述" class="layui-textarea fly-editor" style="height: 260px;"></textarea>
                     </div>
                   </div>
-
+                  <!--
                   <div class="layui-form-item login_img">
                     <label for="L_vercode" class="layui-form-label">人类验证</label>
                     <div class="layui-input-inline">
@@ -48,8 +48,9 @@
                       <img id="identifyCodeImg" @click="refreshImg()" alt="" title="算不出来？点击刷新"/>
                     </div>
                   </div>
-                  <div class="layui-form-item">
-                    <a class="layui-btn" @click="update()">确认修改</a>
+                  -->
+                  <div class="layui-form-item" id="checkEvent"  @click = "update()">
+                    <a class="layui-btn" @click.stop = "checkCode()">确认修改</a>
                   </div>
                 </form>
               </div>
@@ -63,6 +64,7 @@
 
 <script>
   import {fly} from '../util/editUtil.js';
+  import {validateCode} from '../util/validateCode.js';
   export default {
     name: "edit",
     data: function() {
@@ -75,14 +77,7 @@
       add:function(){
         this.$router.push({path: 'add'})
       },
-      refreshImg:function(){
-        this.$http.get('gateway/identifyCode',layer,this).then(result => {
-          if(result && result.data) {
-            document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
-          }
-        })
-      },
-      update:function(){
+      checkCode:function(){
         if(!this.formData.type){
           layer.msg('请选择发表类型',{time:1000});
         }else if(!this.formData.title){
@@ -93,30 +88,23 @@
           layer.msg('请填写内容',{time:1000},function () {
             $('#L_content').focus();
           });
-        }else if(!this.formData.vercode){
-          layer.msg('请填写验证',{time:1000},function () {
-            $('#L_vercode').focus();
-          });
-        }else{
-          var _this = this;
-          _this.$http.post('user/updateArticle',_this.formData,layer,_this).then(result => {
-            if(result.code == 1){
-              layer.msg('恭喜！修改成功',{time:1000},function(){
-                _this.$router.push({path: 'detail',query:{id:_this.formData.serialNumber}})
-              })
-            }else{
-              layer.msg(result.message,{time:1000},function(){
-                _this.$http.get('gateway/identifyCode',layer,_this).then(result => {
-                  if(result && result.data) {
-                    document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data);
-                  }
-                })
-              })
-            }
-
-          })
-
+        }else {
+          validateCode.showDom(this)
         }
+      },
+      update:function(){
+        var _this = this;
+        _this.$http.post('user/updateArticle',_this.formData,layer,_this).then(result => {
+          if(result.code == 1){
+            layer.msg('恭喜！修改成功',{time:1000},function(){
+              _this.$router.push({path: 'detail',query:{id:_this.formData.serialNumber}})
+            })
+          }else{
+            layer.msg(result.message,{time:1000},function(){
+            })
+          }
+
+        })
       }
     },
     mounted(){
@@ -131,14 +119,14 @@
       layui.use(['layer','form'], function () {
         var layer = layui.layer,form = layui.form
 
-        _this.$http.get('user/checkUserStatus?needImg=1',layer,_this).then(result => {
+        _this.$http.get('user/checkUserStatus',layer,_this).then(result => {
           if (result && result.data) {
             if (result.code == 1) {
               _this.userSession = result.data.userTemp
               if (!_this.userSession) {
                 _this.$router.push({path: 'firstPage'})
               }
-              document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data.img);
+              //document.getElementById('identifyCodeImg').setAttribute('src', 'data:image/jpeg;base64,' + result.data.img);
             } else {
               layer.msg(result.message, {time: 1500}, function () {
                 _this.$router.push({path: 'firstPage'})
