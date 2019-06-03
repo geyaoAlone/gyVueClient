@@ -75,7 +75,7 @@
     },
     methods:{
       add:function(){
-        this.$router.push({path: 'add'})
+        this.$router.push({path: 'newEdit'})
       },
       checkCode:function(){
         if(!this.formData.type){

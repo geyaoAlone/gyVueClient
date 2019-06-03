@@ -65,7 +65,7 @@
       validate:function(e){
         if(!this.registerInfo[e.target.name]){
           $('#'+e.target.id).parent().parent().find('p').text('必填')
-          $('#'+e.target.id).focus()
+         // $('#'+e.target.id).focus()
           return
         }
         this.$http.get('gateway/registerValidate?'+e.target.name+'='+this.registerInfo[e.target.name],layer,this).then(result => {

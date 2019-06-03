@@ -34,7 +34,7 @@
               <li v-for="(item ,i) in myCatalogueList" :key="i">
                 <a class="jie-title" href="javascript:;" @click="openDetail(item.serialNumber)">{{item.title}}</a>
                 <i>{{item.createTime}}</i>
-                <a class="mine-edit" href="javascript:;" @click="editThisDetail(item.serialNumber)">编辑</a>
+                <a class="mine-edit" href="javascript:;" @click="editThisDetail(item.serialNumber,item.createTime)">编辑</a>
                 <em>{{item.seenTimes}}阅/{{item.commentTimes}}答</em>
               </li>
             </ul>
@@ -62,11 +62,15 @@
         openDetail:function (id) {
           this.$router.push({path: 'detail',query:{id:id}})
         },
-        editThisDetail:function (id) {
-          this.$router.push({path: 'edit',query:{id:id}})
+        editThisDetail:function (id,time) {
+          if(new Date(time.replace(/-/g,"/")) < new Date("2019-05-31 00:00:00".replace(/-/g,"/"))){
+            layer.alert("由于编辑器的更新，老的文章已不支持修改！非常的抱歉！", {icon: 0})
+            return
+          }
+          this.$router.push({path: 'newEdit',query:{id:id}})
         },
         add:function(){
-          this.$router.push({path: 'add'})
+          this.$router.push({path: 'newEdit'})
         },
         myHomepage:function(){
           this.$router.push({path: 'myHomepage'})

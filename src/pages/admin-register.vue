@@ -139,7 +139,7 @@
           validateCode.showDom(this)
         },
         add:function(){
-          this.$router.push({path: 'add'})
+          this.$router.push({path: 'newEdit'})
         },
         myHomepage:function(){
           this.$router.push({path: 'myHomepage'})

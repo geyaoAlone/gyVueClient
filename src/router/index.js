@@ -16,6 +16,7 @@ import AdminRegister from '../pages/admin-register'
 import VisitorsWall from '../pages/visitors-wall'
 import MyPosting from '../pages/my-posting'
 import UserRegister from  '../pages/user-register'
+import NewEdit from  '../pages/mavon-editor'
 Vue.use(Router)
 
 export default new Router({
@@ -89,6 +90,10 @@ export default new Router({
       path:'/userRegister',
       name:'user-register',
       component:UserRegister
+    },{
+      path:'/newEdit',
+      name:'new-edit',
+      component:NewEdit
     }
 
   ]

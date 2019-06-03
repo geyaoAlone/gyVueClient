@@ -156,7 +156,7 @@
         },
         methods:{
           add:function(){
-            this.$router.push({path: 'add'})
+            this.$router.push({path: 'newEdit'})
           },
           getDetail:function(id){
             this.$router.push({path: 'detail',query:{id:id}})
@@ -175,22 +175,14 @@
               username = _this.$route.params.username,
               url = "lobby/getOwnCatalogue?",
               visitorInfo = JSON.parse(sessionStorage.getItem('user'))
-          //访客进入
           if(username){
-            if(visitorInfo && username == visitorInfo.username){
-              this.isVisitor = false
-            }
-            url+="username="+username
-          }else{
-            //错误进入
-            if(!visitorInfo){
-              _this.$router.push({path: 'firstPage'})
-            }
-            //自己进入自己主页
-            _this.isVisitor = false
-            url+="username="+visitorInfo.username
+            sessionStorage.setItem("master",username);
           }
-
+          url+="username="+sessionStorage.getItem('master')
+          //楼主自己进入
+          if(visitorInfo && sessionStorage.getItem('master') == visitorInfo.username){
+            this.isVisitor = false
+          }
           layui.use('layer', function() {
             layer = layui.layer;
             _this.$http.get(url,layer,_this).then(result => {

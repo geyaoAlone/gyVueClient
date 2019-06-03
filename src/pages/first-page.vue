@@ -234,7 +234,7 @@
           this.$router.push({path: 'myPosting'})
         },
         add:function(){
-          this.$router.push({path: 'add'})
+          this.$router.push({path: 'newEdit'})
         },
         detail:function(id){
           this.$router.push({path: 'detail',query:{id:id}})

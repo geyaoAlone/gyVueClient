@@ -100,7 +100,7 @@
           this.$router.push({path: 'myPosting'})
         },
         add:function(){
-          this.$router.push({path: 'add'})
+          this.$router.push({path: 'newEdit'})
         },
         myHomepage:function(){
           this.$router.push({path: 'myHomepage'})

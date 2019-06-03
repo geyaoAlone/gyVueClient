@@ -75,6 +75,8 @@
               if(result.code === 1){
                 localStorage.setItem('token',result.data)
                 layer.msg('登陆成功！',{time:1000},function(){
+                  window.location.href = "/";
+                  /*
                   _this.$http.get('user/checkUserStatus',layer,_this).then(result => {
                     if(result){
                       console.info(result)
@@ -83,11 +85,12 @@
                           ,{time:1500});
                       }else{
                         sessionStorage.setItem("user",JSON.stringify(result.data.userTemp))
-                        window.location.href = "http://localhost:8081";//"http://www.geyaoln.xin";//
+                       //"http://www.geyaoln.xin";//
                         //_this.$router.push({path: 'firstPage'})
                       }
                     }
                   })
+                  */
                 })
               }else{
                 layer.msg(result.message,{time:1500});

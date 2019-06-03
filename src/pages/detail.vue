@@ -105,8 +105,10 @@
                 <!--&lt;!&ndash;<span class="layui-btn layui-btn-xs jie-admin" type="edit"><a href="add.html">编辑此贴</a></span>&ndash;&gt;-->
               <!--</div>-->
             <!--</div>-->
-            <div class="detail-body photos" v-html="detail.content"></div>
-
+            <div class="detail-body photos" v-if="!detail.contentOriginal" v-html="detail.content"></div>
+            <div class="markdown-body" v-if="detail.contentOriginal">
+              <article class="context" v-html="detail.content"></article>
+            </div>
 
             <!--用户头像/信息开始-->
             <!--<div class="detail-about detail_aboutAuthor">-->
@@ -253,7 +255,7 @@
             this.$router.push({path: 'myPosting'})
           },
           add:function(){
-            this.$router.push({path: 'add'})
+            this.$router.push({path: 'newEdit'})
           },
           otherDetail:function(id){
             this.$http.get('lobby/queryConnotationDetail?serialNumber='+id,layer,this).then(result => {
@@ -284,7 +286,10 @@
 
           },
           sbReply:function(){
-
+              if(!this.content){
+                layer.msg('请留下回复后再提交',{times:1000})
+                return;
+              }
             if(this.userSession){
               var comment = {serialNumber : this.detail.serialNumber,
                                    author : this.userSession.nickname,
@@ -392,7 +397,11 @@
             this.$router.push({name: 'my-homepage', params: {username: username}})
           },
           editThisDetail:function (id) {
-            this.$router.push({path: 'edit',query:{id:id}})
+            if(!this.detail.contentOriginal){
+              layer.alert("由于编辑器的更新，老的文章已不支持修改！非常的抱歉！", {icon: 0})
+              return
+            }
+            this.$router.push({path: 'newEdit',query:{id:id}})
           },
           saveFavorite:function (serialNumber) {
             this.$http.post('user/saveFavorite',{serialNumber:serialNumber,username:this.userSession.username},layer,this).then(result => {
@@ -428,7 +437,9 @@
               if(result && result.data){
 
                 var data = result.data
-                data.detailData.content = fly.content(data.detailData.content)
+                if(!data.detailData.contentOriginal){
+                  data.detailData.content = fly.content(data.detailData.content)
+                }
                 _this.detail = data.detailData
                 _this.heatData = data.heatData
                 data.commentList.forEach(comment=>{
@@ -451,6 +462,13 @@
 </script>
 
 <style scoped>
+  /*.context{
+    margin: 0 auto;
+    width: 70%;
+    background-color: #dfe2e5;
+    padding: 10px;
+    text-align: left;
+  }*/
   .detail_lableTip span:first-child{
      background: rgba(0,0,0,0) !important;
      color: #bbbbbb !important;

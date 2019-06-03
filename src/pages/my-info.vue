@@ -170,7 +170,7 @@
           this.$router.push({path: 'myPosting'})
         },
         add:function(){
-          this.$router.push({path: 'add'})
+          this.$router.push({path: 'newEdit'})
         },
         modifyBasicInfo:function(){
           var isModify = false

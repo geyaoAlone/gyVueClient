@@ -3,7 +3,7 @@
 import axios from 'axios'
 //import { Indicator } from 'mint-ui';
 
-const BASE_URL = 'https://39.108.221.60:8443/api/';// //'https://10.10.10.142:8443/api/'
+const BASE_URL = 'https://www.gy2ln.cn:8443/api/';// //'http://localhost:9500/api/'
 axios.interceptors.request.use(config => {
     // loading opend
     //Indicator.open('加载中...');
@@ -118,5 +118,16 @@ export default {
         url,
         timeout: 15000
       }).then( response => checkStatus(response,null,null,null))
-    }
+    },
+    upload (url,data,layer,_this) {
+      var waiting = layer.msg('Lodding...', {shade: [0.5, '#393D49'],icon: 16,time: 3600*1000})
+      return axios({
+        method: 'post',
+        baseURL: BASE_URL,
+        url,
+        data,
+        timeout: 15000,
+        headers: { 'Content-Type': 'multipart/form-data',"Authorization":'Bearer '+ localStorage.getItem('token') },
+      }).then( response => checkStatus(response,layer,_this,waiting))
+    },
 }
